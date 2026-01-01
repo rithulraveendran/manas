@@ -2,5 +2,5 @@ Flask>=2.3.4
 firebase-admin==6.3.0
 requests==2.31.0
 textblob==0.17.1
-groq==0.2.1
+groq>=0.2.1
 gunicorn==21.2.0
