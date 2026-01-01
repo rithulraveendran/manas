@@ -12,9 +12,9 @@ app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 SENDER_EMAIL = os.environ.get("SENDER_EMAIL")
 APP_PASSWORD = os.environ.get("APP_PASSWORD")
-FIREBASE_KEY_JSON = os.environ.get("FIREBASE_KEY_JSON")
+FIREBASE_KEY_PATH = "/run/secrets/firebase_key.json"
 
-cred = credentials.Certificate(FIREBASE_KEY_JSON)
+cred = credentials.Certificate(FIREBASE_KEY_PATH)
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
 db = firestore.client()
