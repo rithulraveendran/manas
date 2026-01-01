@@ -1,40 +1,36 @@
-Manas AI 🤖🧠
-A friendly mental health companion chatbot built with Python, Flask, and AI
+<div align="center"> <h1>Manas AI</h1> <p><b>Your Friendly Mental Health Companion Chatbot</b></p> <p>Talk, reflect, and grow with an AI designed to support your emotional wellbeing.</p> <img src="static/bot.png" alt="Manas AI Banner" width="100%"> <br /> <p> <a href="#overview">Overview</a> • <a href="#features">Features</a> • <a href="#installation">Installation</a> • <a href="#usage">Usage</a> </p> </div>
 🌟 Overview
 
-Manas AI is a web-based chatbot designed to support mental wellness, provide daily inspiration, and track moods. Users can chat, play small games, listen to motivational content, and get alerts if distressing keywords are detected.
+Manas AI is a web-based chatbot that provides emotional support, motivational guidance, and mental wellness tracking. Users can chat, get daily inspiration, monitor their mood trends, and play mini-games to relieve stress.
 
-It uses AI language models to generate empathetic responses and integrates with Firebase for authentication and chat history storage.
+It uses AI language models to give empathetic, supportive responses and Firebase to store user data and chats securely.
 
-🛠️ Features
+🛠 Features
 
-User Authentication – Signup, login, OTP verification, and account management.
+🤖 AI Chatbot: Converses with users about mental health, emotions, stress, and self-growth.
 
-Chatbot – AI-powered mental health companion with empathetic responses.
+🛡️ Distress Detection: Detects negative keywords or sentiment and can trigger alerts for help.
 
-Distress Detection – Detects keywords or negative sentiments and can send emergency alerts.
+📊 Mood Tracking: Weekly sentiment analysis based on user chat.
 
-Daily Inspiration – Motivational quotes and self-improvement tips.
+💡 Daily Inspiration: Motivational quotes and practical self-improvement tips.
 
-Mood Tracking – Weekly mood analysis based on chat sentiment.
+🎮 Mini Games: Snake, Runner, and Memory games for relaxation.
 
-Mini Games – Snake, Runner, and Memory games for fun breaks.
+🔑 Account Management: Signup, login, OTP verification, password updates, and account deletion.
 
-Songs & Mood Pages – Personalization options for users.
+🚀 Installation
+Prerequisites
 
-💻 Tech Stack
+Python 3.11+
 
-Backend: Python, Flask
+Flask
 
-AI Integration: Groq API, TextBlob (for sentiment analysis)
+Firebase Account & Key
 
-Database: Firebase Firestore
+Groq API Key
 
-Frontend: HTML, CSS, JavaScript, Jinja2 templates
-
-Email Service: SMTP (Gmail) for OTP and distress alerts
-
-⚡ Installation
+Quick Start
 
 Clone the repository:
 
@@ -42,88 +38,33 @@ git clone https://github.com/your-username/manas-ai.git
 cd manas-ai
 
 
-Create a virtual environment and activate it:
-
-python -m venv venv
-source venv/bin/activate      # Linux / macOS
-venv\Scripts\activate         # Windows
-
-
 Install dependencies:
 
 pip install -r requirements.txt
 
 
-Add your Firebase key in static/firebase_key.json and update API keys in app.py.
+Set environment variables:
+Edit app.py and replace placeholders with your email, password, Firebase key path, and Groq API key.
 
 Run the app:
 
 python app.py
 
 
-Open in your browser at:
+Access Manas AI in your browser:
 
-http://127.0.0.1:5000
+Open http://127.0.0.1:5000
 
-🔑 Usage
+💬 Usage
 
-Signup/Login: Create an account using email and OTP verification.
+Sign up with your email and verify OTP.
 
-Chat: Talk to Manas AI for mental wellness guidance.
+Start chatting in the Chat page.
 
-Games & Mood Tracking: Access mini-games and track your weekly mood.
+Track your mood trends in Mood.
 
-Daily Inspiration: Get motivational quotes and tips daily.
+Get daily motivational tips in Daily Inspiration.
 
-Account Management: Update or delete your account securely.
+Play mini-games via the Games page.
 
-⚠️ Notes
-
-This project is for educational and personal wellness purposes.
-
-Manas AI is not a substitute for professional medical advice.
-
-Emergency emails are sent only if distress keywords or negative sentiments are detected.
-
-📂 Project Structure
-Manas/
-│   app.py
-│
-├───static
-│       bot.png
-│       firebase_key.json
-│       user.jpg
-│
-└───templates
-        account.html
-        chat.html
-        daily_inspiration.html
-        game1.html
-        game2.html
-        game3.html
-        games.html
-        login.html
-        mood.html
-        signup.html
-        songs.html
-        verify_otp.html
-
-🛠️ Future Improvements
-
-Add real-time chat with websockets.
-
-Integrate voice input/output.
-
-Enhance AI responses with more nuanced sentiment analysis.
-
-Mobile-friendly responsive design.
-
-📜 License
-
-This project is under a Custom License – anyone must get explicit permission from the owner before using, modifying, or distributing the code.
-
-🌐 Connect
-
-📧 Email: flightsofwhisper@gmail.com
-
-⭐ “Your mental wellness matters. Talk, reflect, and grow with Manas AI.”
+Manage your account in Account.
