@@ -1,21 +1,21 @@
-<div align="center"> <h1>Manas AI</h1> <p><b>Your Friendly Mental Health Companion Chatbot</b></p> <p>Talk, reflect, and grow with an AI designed to support your emotional wellbeing.</p> <img src="static/bot.png" alt="Manas AI Banner" width="100%"> <br /> <p> <a href="#overview">Overview</a> • <a href="#features">Features</a> • <a href="#installation">Installation</a> • <a href="#usage">Usage</a> </p> </div>
-🌟 Overview
+<div align="center"> <h1>Manas AI</h1> <p><b>Your Friendly Mental Health Companion Chatbot</b></p> <p>Talk, reflect, and grow with an AI designed to support your emotional wellbeing.</p> <br /> <p> <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-installation">Installation</a> • <a href="#-usage">Usage</a> </p> </div>
+🌌 Overview
 
-Manas AI is a web-based chatbot that provides emotional support, motivational guidance, and mental wellness tracking. Users can chat, get daily inspiration, monitor their mood trends, and play mini-games to relieve stress.
+Manas AI is a web-based chatbot designed for emotional support, motivation, and self-growth. Users can chat about mental health, track their mood, receive daily inspiration, and play mini-games for stress relief.
 
-It uses AI language models to give empathetic, supportive responses and Firebase to store user data and chats securely.
+It combines AI-driven empathetic responses with secure data storage using Firebase.
 
 🛠 Features
 
-🤖 AI Chatbot: Converses with users about mental health, emotions, stress, and self-growth.
+🤖 AI Chatbot: Empathetic conversations about mental health, emotions, stress, and self-growth.
 
-🛡️ Distress Detection: Detects negative keywords or sentiment and can trigger alerts for help.
+🛡️ Distress Detection: Detects negative sentiment and triggers alerts when necessary.
 
-📊 Mood Tracking: Weekly sentiment analysis based on user chat.
+📊 Mood Tracking: Weekly sentiment trends from your chat history.
 
-💡 Daily Inspiration: Motivational quotes and practical self-improvement tips.
+💡 Daily Inspiration: Motivational quotes and practical tips for self-improvement.
 
-🎮 Mini Games: Snake, Runner, and Memory games for relaxation.
+🎮 Mini Games: Snake, Runner, and Memory games for fun and relaxation.
 
 🔑 Account Management: Signup, login, OTP verification, password updates, and account deletion.
 
@@ -26,38 +26,39 @@ Python 3.11+
 
 Flask
 
-Firebase Account & Key
+Firebase Key
 
 Groq API Key
 
 Quick Start
 
-Clone the repository:
+1. Clone the repository:
 
 git clone https://github.com/your-username/manas-ai.git
 cd manas-ai
 
 
-Install dependencies:
+2. Install dependencies:
 
 pip install -r requirements.txt
 
 
-Set environment variables:
-Edit app.py and replace placeholders with your email, password, Firebase key path, and Groq API key.
+3. Configure environment variables:
 
-Run the app:
+Set your email, app password, Firebase key path, and Groq API key in app.py.
+
+4. Run the app:
 
 python app.py
 
 
-Access Manas AI in your browser:
+5. Access Manas AI in your browser:
 
 Open http://127.0.0.1:5000
 
 💬 Usage
 
-Sign up with your email and verify OTP.
+Sign up with your email and verify the OTP.
 
 Start chatting in the Chat page.
 
