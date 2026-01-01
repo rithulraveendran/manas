@@ -1,22 +1,27 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash, make_response
 from datetime import datetime, timedelta
-import random, os, smtplib, requests
+import random, os, smtplib, requests, tempfile
 from textblob import TextBlob
 import firebase_admin
 from firebase_admin import credentials, firestore
 from groq import Groq
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
-app.secret_key = os.environ.get("FLASK_SECRET_KEY", "supersecretkey")
+app.secret_key = os.environ["FLASK_SECRET_KEY"]
 
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
-SENDER_EMAIL = os.environ.get("SENDER_EMAIL")
-APP_PASSWORD = os.environ.get("APP_PASSWORD")
-FIREBASE_KEY_PATH = os.path.join(os.path.dirname(__file__), "static", "firebase_key.json")
+GROQ_API_KEY = os.environ["GROQ_API_KEY"]
+SENDER_EMAIL = os.environ["SENDER_EMAIL"]
+APP_PASSWORD = os.environ["APP_PASSWORD"]
+FIREBASE_KEY_JSON = os.environ["FIREBASE_KEY_JSON"]
+
+with tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".json") as f:
+    f.write(FIREBASE_KEY_JSON)
+    firebase_key_path = f.name
 
 if not firebase_admin._apps:
-    cred = credentials.Certificate(FIREBASE_KEY_PATH)
+    cred = credentials.Certificate(firebase_key_path)
     firebase_admin.initialize_app(cred)
+
 db = firestore.client()
 client = Groq(api_key=GROQ_API_KEY)
 
@@ -25,346 +30,154 @@ otp_storage = {}
 def send_otp_email(receiver_email):
     otp = str(random.randint(100000, 999999))
     otp_storage[receiver_email] = otp
-    subject = "Manas AI - OTP Verification"
-    message = f"""Subject: {subject}
-
-Hello!
-
-Your OTP is: {otp}
-
-Meet Manas AI - your friendly mental wellness assistant.
-"""
-    try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
-        server.login(SENDER_EMAIL, APP_PASSWORD)
-        server.sendmail(SENDER_EMAIL, receiver_email, message)
-        server.quit()
-        return otp
-    except Exception as e:
-        print("Email error:", e)
-        return None
+    message = f"Subject: Manas AI - OTP Verification\n\nYour OTP is: {otp}"
+    server = smtplib.SMTP("smtp.gmail.com", 587)
+    server.starttls()
+    server.login(SENDER_EMAIL, APP_PASSWORD)
+    server.sendmail(SENDER_EMAIL, receiver_email, message)
+    server.quit()
 
 def send_distress_email(to_email, user_name, user_email, triggering_text):
-    subject = "Manas AI – URGENT: Suicidal/Self-harm Words Detected"
-    message_body = (
-        f"This is an emergency message from Manas AI.\n\n"
-        f"The following user sent a message containing suicide or self-harm related content:\n"
+    message = (
+        "Subject: Manas AI – URGENT\n\n"
         f"User Name: {user_name}\n"
         f"User Email: {user_email}\n"
-        f"Triggered Message: {triggering_text}\n\n"
-        "The user may be in emotional distress and needs immediate help.\n"
-        "Please reach out to them or contact local support as soon as possible."
+        f"Message: {triggering_text}"
     )
-    message = f"Subject: {subject}\n\n{message_body}"
-    try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
-        server.login(SENDER_EMAIL, APP_PASSWORD)
-        server.sendmail(SENDER_EMAIL, to_email, message)
-        server.quit()
-    except Exception as e:
-        print("Distress Email error:", e)
+    server = smtplib.SMTP("smtp.gmail.com", 587)
+    server.starttls()
+    server.login(SENDER_EMAIL, APP_PASSWORD)
+    server.sendmail(SENDER_EMAIL, to_email, message)
+    server.quit()
 
 def save_user(email, password, name=None, age=None):
-    data = {"email": email, "password": password}
-    if name: data["name"] = name
-    if age: data["age"] = age
+    data = {"email": email, "password": password, "name": name, "age": age}
     db.collection("users").document(email).set(data)
 
 def verify_user(email, password):
     doc = db.collection("users").document(email).get()
-    if doc.exists: return doc.to_dict().get("password") == password
-    return False
+    return doc.exists and doc.to_dict()["password"] == password
 
 def save_chat_message(email, chat_name, sender, message):
-    chat_ref = db.collection("chats").document(email).collection(chat_name)
-    chat_ref.add({"sender": sender, "message": message, "timestamp": datetime.utcnow()})
+    db.collection("chats").document(email).collection(chat_name).add({
+        "sender": sender,
+        "message": message,
+        "timestamp": datetime.utcnow()
+    })
 
 def get_chat_history(email, chat_name):
-    chat_ref = db.collection("chats").document(email).collection(chat_name).order_by("timestamp")
-    return [{"sender": d.to_dict()["sender"], "message": d.to_dict()["message"], "timestamp": d.to_dict().get("timestamp")} for d in chat_ref.stream()]
+    docs = db.collection("chats").document(email).collection(chat_name).order_by("timestamp").stream()
+    return [{"sender": d.to_dict()["sender"], "message": d.to_dict()["message"], "timestamp": d.to_dict()["timestamp"]} for d in docs]
 
 def get_user_chats(email):
-    try: return [c.id for c in db.collection("chats").document(email).collections()]
-    except: return []
+    return [c.id for c in db.collection("chats").document(email).collections()]
 
 def delete_chat_firestore(email, chat_name):
-    try:
-        parent_ref = db.collection("chats").document(email).collection(chat_name)
-        docs = list(parent_ref.stream())
-        batch = db.batch()
-        for doc in docs: batch.delete(doc.reference)
-        batch.commit()
-        return True
-    except Exception as e:
-        print(f"Error deleting chat '{chat_name}': {e}")
-        return False
+    coll = db.collection("chats").document(email).collection(chat_name)
+    for doc in coll.stream():
+        doc.reference.delete()
+    return True
 
 @app.route("/")
 def home():
-    if "email" in session: return redirect(url_for("chat"))
-    return redirect(url_for("login"))
+    return redirect(url_for("chat")) if "email" in session else redirect(url_for("login"))
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
-        name = request.form.get("name")
-        age = request.form.get("age")
-        save_user(email, password, name=name, age=age)
+        email = request.form["email"]
+        password = request.form["password"]
+        name = request.form["name"]
+        age = request.form["age"]
+        save_user(email, password, name, age)
         send_otp_email(email)
-        session["pending_email"] = email
-        session["user_name"] = name
-        session["user_age"] = age
-        flash("OTP sent to your email.")
+        session.update({"pending_email": email, "name": name, "age": age})
         return redirect(url_for("verify_otp"))
     return render_template("signup.html")
 
-@app.route("/verify_otp", methods=["GET","POST"])
+@app.route("/verify_otp", methods=["GET", "POST"])
 def verify_otp():
     email = session.get("pending_email")
-    if not email: return redirect(url_for("signup"))
-    if request.method=="POST":
-        otp = request.form.get("otp")
-        if otp and otp_storage.get(email)==otp:
-            session["email"]=email
-            session["name"]=session.get("user_name","")
-            session["age"]=session.get("user_age","")
-            otp_storage.pop(email,None)
-            session.pop("pending_email",None)
-            session.pop("user_name",None)
-            session.pop("user_age",None)
-            return redirect(url_for("chat"))
-        else: flash("Invalid OTP!")
+    if request.method == "POST" and request.form["otp"] == otp_storage.get(email):
+        session["email"] = email
+        session.pop("pending_email")
+        return redirect(url_for("chat"))
     return render_template("verify_otp.html")
 
-@app.route("/login", methods=["GET","POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method=="POST":
-        email=request.form.get("email")
-        password=request.form.get("password")
-        if verify_user(email,password):
-            session["email"]=email
-            doc=db.collection("users").document(email).get()
-            if doc.exists:
-                data=doc.to_dict()
-                session["name"]=data.get("name","")
-                session["age"]=data.get("age","")
+    if request.method == "POST":
+        email = request.form["email"]
+        if verify_user(email, request.form["password"]):
+            session["email"] = email
             return redirect(url_for("chat"))
-        else: flash("Invalid credentials!")
     return render_template("login.html")
 
 @app.route("/logout")
 def logout():
-    session.pop("email",None)
-    session.pop("name",None)
-    session.pop("age",None)
-    flash("Logged out.")
+    session.clear()
     return redirect(url_for("login"))
 
 @app.route("/chat")
 def chat():
-    if "email" not in session: return redirect(url_for("login"))
-    email=session["email"]
-    user_chats=get_user_chats(email)
-    user_name=session.get("name","")
-    user_age=session.get("age","")
-    return render_template("chat.html", user=email, user_name=user_name, user_age=user_age, user_chats=user_chats)
+    if "email" not in session:
+        return redirect(url_for("login"))
+    return render_template("chat.html", user=session["email"], user_chats=get_user_chats(session["email"]))
 
 @app.route("/new_chat", methods=["POST"])
 def new_chat():
-    if "email" not in session: return jsonify({"error":"Unauthorized"}),401
-    email=session["email"]
-    chat_name=f"Chat {datetime.now().strftime('%Y-%m-%d %H-%M-%S')}"
-    save_chat_message(email,chat_name,"bot","Hi there! I'm Manas, your AI mental health assistant. How can I help you today?")
-    return jsonify({"chat_name":chat_name})
+    chat_name = f"Chat {datetime.now().strftime('%Y-%m-%d %H-%M-%S')}"
+    save_chat_message(session["email"], chat_name, "bot", "Hi, I'm Manas. How can I help?")
+    return jsonify({"chat_name": chat_name})
 
 @app.route("/chat_message", methods=["POST"])
 def chat_message():
-    if "email" not in session: return jsonify({"error":"Unauthorized"}),401
-    email=session["email"]
-    chat_name=request.json.get("chat_name")
-    user_message=request.json.get("message","").strip()
-    if not user_message: return jsonify({"error":"Empty message"}),400
-    if not chat_name:
-        chat_name=f"Chat {datetime.now().strftime('%Y-%m-%d %H-%M-%S')}"
-        save_chat_message(email,chat_name,"bot","Hi there! I'm Manas, your AI mental health assistant. How can I help you today?")
-    save_chat_message(email,chat_name,"user",user_message)
-    help_keywords=["suicide","self harm","kill myself","end my life","cut myself","hurt myself","die","depressed","hopeless","worthless"]
-    contains_keywords=any(k in user_message.lower() for k in help_keywords)
-    distress_detected=contains_keywords or TextBlob(user_message).sentiment.polarity<-0.5
-    name=session.get("name","")
-    age=session.get("age","")
-    current_user_email=session.get("email","")
-    system_prompt=f"""
-You are Manas AI — a friendly mental health companion created by first-year students of St. Joseph’s College of Engineering, Chennai.
-User name: {name}
-User age: {age}
-Speak only in English.
-Talk only about mental health, motivation, emotions, stress, or self-growth.
-Be kind, empathetic, and brief. Provide official helpline numbers when needed.
-Never discuss medical issues, politics, or unrelated topics.
-Your goal is to make the user feel understood and supported.
-"""
-    history=get_chat_history(email,chat_name)
-    last_messages=history[-6:] if len(history)>=6 else history
-    messages_for_model=[{"role":"system","content":system_prompt}]
-    for msg in last_messages:
-        role="user" if msg["sender"]=="user" else "assistant"
-        messages_for_model.append({"role":role,"content":msg["message"]})
-    try:
-        response=client.chat.completions.create(model="llama-3.1-8b-instant",messages=messages_for_model)
-        bot_message=response.choices[0].message.content.strip()
-    except:
-        bot_message="⚠️ Error connecting to Manas AI."
-    save_chat_message(email,chat_name,"bot",bot_message)
-    if distress_detected: send_distress_email("manasemergencysos@gmail.com",name,current_user_email,user_message)
-    return jsonify({"message":bot_message,"chat_name":chat_name,"help_available":distress_detected})
+    email = session["email"]
+    chat_name = request.json.get("chat_name") or f"Chat {datetime.now().strftime('%Y-%m-%d %H-%M-%S')}"
+    user_message = request.json["message"]
+    save_chat_message(email, chat_name, "user", user_message)
+
+    distress = TextBlob(user_message).sentiment.polarity < -0.5
+    messages = [{"role": "system", "content": "You are Manas AI. Be empathetic."}]
+    for m in get_chat_history(email, chat_name)[-6:]:
+        messages.append({"role": "user" if m["sender"] == "user" else "assistant", "content": m["message"]})
+
+    response = client.chat.completions.create(model="llama-3.1-8b-instant", messages=messages)
+    bot_message = response.choices[0].message.content.strip()
+
+    save_chat_message(email, chat_name, "bot", bot_message)
+    if distress:
+        send_distress_email("manasemergencysos@gmail.com", session.get("name"), email, user_message)
+
+    return jsonify({"message": bot_message, "chat_name": chat_name})
 
 @app.route("/delete_chat", methods=["POST"])
 def delete_chat():
-    if "email" not in session: return jsonify({"error":"Unauthorized"}),401
-    email=session["email"]
-    chat_name=request.json.get("chat_name")
-    if not chat_name: return jsonify({"error":"Chat name required"}),400
-    return jsonify({"success":delete_chat_firestore(email,chat_name)})
+    delete_chat_firestore(session["email"], request.json["chat_name"])
+    return jsonify({"success": True})
 
 @app.route("/daily_inspiration")
 def daily_inspiration():
-    if "email" not in session: return redirect(url_for("login"))
-    try:
-        res=requests.get("https://zenquotes.io/api/random/10")
-        quotes=res.json()
-        quote_data=random.choice(quotes)
-        quote=f"{quote_data['q']} — {quote_data['a']}"
-    except: quote="Stay positive and keep going! — Unknown"
-    system_prompt="You are a motivational AI. Give ONE short, practical, uplifting self-improvement tip. Reply only with the tip text."
-    try:
-        response=client.chat.completions.create(model="llama-3.3-70b-versatile",messages=[{"role":"system","content":system_prompt}])
-        tip=response.choices[0].message.content.strip()
-    except: tip="Take a few deep breaths and focus on the present moment."
-    response=make_response(render_template("daily_inspiration.html",quote=quote,tip=tip))
-    response.headers["Cache-Control"]="no-cache, no-store, must-revalidate"
-    response.headers["Pragma"]="no-cache"
-    response.headers["Expires"]="0"
-    return response
-
-@app.route("/load_chat", methods=["POST"])
-def load_chat():
-    if "email" not in session: return jsonify({"error":"Unauthorized"}),401
-    email=session["email"]
-    chat_name=request.json.get("chat_name")
-    if not chat_name: return jsonify({"error":"Chat name required"}),400
-    return jsonify({"history":get_chat_history(email,chat_name)})
-
-@app.route("/songs")
-def songs():
-    if "email" not in session: return redirect(url_for("login"))
-    return render_template("songs.html")
-
-@app.route("/mood")
-def mood():
-    if "email" not in session: return redirect(url_for("login"))
-    return render_template("mood.html")
-
-@app.route("/mood_data")
-def mood_data():
-    if "email" not in session: return jsonify({"error":"Unauthorized"}),401
-    email=session["email"]
-    all_chats=get_user_chats(email)
-    today=datetime.utcnow().date()
-    week_scores=[]
-    week_labels=[]
-    for i in range(7):
-        day=today-timedelta(days=6-i)
-        day_msgs=[]
-        for chat in all_chats:
-            history=get_chat_history(email,chat)
-            for msg in history:
-                ts=msg.get("timestamp")
-                if ts and msg["sender"]=="user":
-                    ts_date=ts.date() if isinstance(ts,datetime) else ts
-                    if ts_date==day: day_msgs.append(msg["message"])
-        day_polarity=sum([TextBlob(m).sentiment.polarity for m in day_msgs])/len(day_msgs) if day_msgs else 0
-        week_scores.append(round(day_polarity,2))
-        week_labels.append(day.strftime("%a"))
-    return jsonify({"mood_scores":week_scores,"mood_labels":week_labels})
-
-@app.route("/game1")
-def snake_game():
-    if "email" not in session: return redirect(url_for("login"))
-    return render_template("game1.html")
-
-@app.route("/game2")
-def runner_game():
-    if "email" not in session: return redirect(url_for("login"))
-    return render_template("game2.html")
-
-@app.route("/game3")
-def memory_game():
-    if "email" not in session: return redirect(url_for("login"))
-    return render_template("game3.html")
-
-@app.route("/account", methods=["GET","POST"])
-def account():
-    if "email" not in session: return redirect(url_for("login"))
-    email=session["email"]
-    doc=db.collection("users").document(email).get()
-    if not doc.exists:
-        flash("User not found!")
-        return redirect(url_for("logout"))
-    user_data=doc.to_dict()
-    if request.method=="POST":
-        current_password=request.form.get("current_password")
-        new_password=request.form.get("new_password")
-        confirm_password=request.form.get("confirm_password")
-        if not verify_user(email,current_password): flash("Current password is incorrect!")
-        elif new_password!=confirm_password: flash("New password and confirmation do not match!")
-        elif not new_password: flash("New password cannot be empty!")
-        else:
-            user_data["password"]=new_password
-            db.collection("users").document(email).set(user_data)
-            flash("Password updated successfully!")
-    return render_template("account.html",user=user_data)
+    quote = requests.get("https://zenquotes.io/api/random").json()[0]
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "system", "content": "Give one short motivational tip."}]
+    )
+    return render_template("daily_inspiration.html", quote=f"{quote['q']} — {quote['a']}", tip=response.choices[0].message.content)
 
 @app.route("/games")
-def gamecenter():
-    if "email" not in session: return redirect(url_for("login"))
+def games():
     return render_template("games.html")
 
 @app.route("/delete_account", methods=["POST"])
 def delete_account():
-    if "email" not in session: return redirect(url_for("login"))
-    email=session["email"]
-    try:
-        db.collection("users").document(email).delete()
-        chat_collections=db.collection("chats").document(email).collections()
-        for coll in chat_collections:
-            for doc in coll.stream():
-                doc.reference.delete()
-        session.clear()
-        flash("Your account has been deleted.")
-        return redirect(url_for("signup"))
-    except Exception as e:
-        print(f"Error deleting account: {e}")
-        flash("Failed to delete account. Please try again.")
-        return redirect(url_for("account"))
+    email = session["email"]
+    db.collection("users").document(email).delete()
+    for coll in db.collection("chats").document(email).collections():
+        for doc in coll.stream():
+            doc.reference.delete()
+    session.clear()
+    return redirect(url_for("signup"))
 
-@app.route("/send_emergency_email", methods=["POST"])
-def send_emergency_email(to_email, user_name, user_email, triggering_text):
-    subject="Manas AI - URGENT: Suicidal/Self-harm Words Detected"
-    message_body=f"This is an emergency message from Manas AI.\n\nUser Name: {user_name}\nUser Email: {user_email}\nTriggered Message: {triggering_text}\n\nThe user may be in emotional distress. Please reach out immediately."
-    message=f"Subject: {subject}\nContent-Type: text/plain; charset=utf-8\n\n{message_body}"
-    try:
-        server=smtplib.SMTP("smtp.gmail.com",587)
-        server.starttls()
-        server.login(SENDER_EMAIL,APP_PASSWORD)
-        server.sendmail(SENDER_EMAIL,to_email,message.encode('utf-8'))
-        server.quit()
-    except Exception as e:
-        print("Distress Email error:", e)
-
-if __name__=="__main__":
-    app.run()
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ["PORT"]))
