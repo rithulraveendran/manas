@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Memory Game - MANAS AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<style>
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.memory-card {
+    background: linear-gradient(135deg, #4A47A3, #7E57C2);
+    border-radius: 1rem;
+    box-shadow: 0 2px 10px 0 #0003;
+    font-family: 'Spline Sans', 'Inter', sans-serif;
+    font-size: 2.4rem;
+    color: #fff;
+    cursor: pointer;
+    transition: transform .18s cubic-bezier(.19,1,.22,1), background .18s cubic-bezier(.19,1,.22,1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+}
+.memory-card.flipped {
+    background: #fff;
+    color: #4A47A3;
+    font-weight: bold;
+    transform: scale(1.06) rotateY(360deg);
+}
+.memory-card.matched {
+    background: #7E57C2;
+    color: #fff;
+    font-weight: bold;
+    transform: scale(1.1);
+}
+.btn-gradient {
+    background: linear-gradient(135deg, #4A47A3, #7E57C2);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 1rem;
+    font-weight: 700;
+    font-size: 1.25rem;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 10px 15px -3px rgb(74 71 163 / 0.4), 0 4px 6px -2px rgb(126 87 194 / 0.3);
+    transition: background 0.3s ease;
+    margin: 20px auto;
+    display: inline-block;
+}
+.btn-gradient:hover {
+    background: linear-gradient(135deg, #7E57C2, #4A47A3);
+}
+</style>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#1313ec",
+        "background-light": "#f6f6f8",
+        "background-dark": "#101022",
+      },
+      fontFamily: {
+        "display": ["Spline Sans", "sans-serif"]
+      },
+      borderRadius: {
+        "DEFAULT": "0.5rem",
+        "lg": "1rem",
+        "xl": "1.5rem",
+        "full": "9999px"
+      },
+    },
+  },
+}
+</script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<div class="px-4 sm:px-8 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f0f0f4] dark:border-b-white/10 px-4 md:px-10 py-3">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-6 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M36.7273 44C33.9891 44 31.6043 39.8386 30.3636 33.69C29.123 39.8386 26.7382 44 24 44C21.2618 44 18.877 39.8386 17.6364 33.69C16.3957 39.8386 14.0109 44 11.2727 44C7.25611 44 4 35.0457 4 24C4 12.9543 7.25611 4 11.2727 4C14.0109 4 16.3957 8.16144 17.6364 14.31C18.877 8.16144 21.2618 4 24 4C26.7382 4 29.123 8.16144 30.3636 14.31C31.6043 8.16144 33.9891 4 36.7273 4C40.7439 4 44 12.9543 44 24C44 35.0457 40.7439 44 36.7273 44Z" fill="currentColor"/>
+</svg>
+</div>
+<h2 class="text-[#111118] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">MANAS AI</h2>
+</div>
+<button id="exitBtn" class="btn-gradient">Exit to Games</button>
+</header>
+<main>
+<h1 class="text-[#111118] dark:text-white tracking-light text-[32px] font-bold leading-tight px-4 text-center pb-3 pt-6">Memory Game</h1>
+<div class="flex flex-wrap gap-4 p-4">
+<div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-6 border border-[#dbdbe6] dark:border-white/10 bg-white dark:bg-background-dark">
+<p class="text-[#111118] dark:text-gray-300 text-base font-medium leading-normal">Score</p>
+<p id="score" class="text-[#111118] dark:text-white tracking-light text-2xl font-bold leading-tight">0</p>
+</div>
+<div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-6 border border-[#dbdbe6] dark:border-white/10 bg-white dark:bg-background-dark">
+<p class="text-[#111118] dark:text-gray-300 text-base font-medium leading-normal">Moves</p>
+<p id="moves" class="text-[#111118] dark:text-white tracking-light text-2xl font-bold leading-tight">0</p>
+</div>
+<div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-6 border border-[#dbdbe6] dark:border-white/10 bg-white dark:bg-background-dark">
+<p class="text-[#111118] dark:text-gray-300 text-base font-medium leading-normal">Time</p>
+<p id="time" class="text-[#111118] dark:text-white tracking-light text-2xl font-bold leading-tight">00:00</p>
+</div>
+</div>
+<!-- Centered grid tiles section -->
+<div class="w-full flex justify-center items-center" style="min-height: 300px;">
+  <div id="grid" class="grid gap-6 justify-center"></div>
+</div>
+<button id="nextLevelBtn" class="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary text-base font-bold text-black transition-transform hover:scale-105 glow-shadow mt-8 mx-auto" style="display:none;">
+    Next Level
+    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</main>
+</div>
+</div>
+</div>
+</div>
+<script>
+const allEmojis = ['😀','😂','😎','😍','😜','🥳','🤔','😢','😇','😈','🤩','😴','🤯','🥰','😱','🤓'];
+let round = 1, score = 0, moves = 0, timer = null, timeStart = null;
+
+function startGame(r) {
+  round = r;
+  moves = 0;
+  timeStart = Date.now();
+  let gridSize = 2 + round - 1;
+  let cardCount = gridSize * gridSize; 
+  if (cardCount / 2 > allEmojis.length) cardCount = allEmojis.length * 2;
+  let shuffled = allEmojis.slice().sort(() => Math.random() - 0.5);
+  let selected = shuffled.slice(0, cardCount / 2);
+  let cards = [...selected, ...selected].sort(() => Math.random() - 0.5);
+
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  grid.style.gridTemplateColumns = `repeat(${gridSize}, minmax(60px,1fr))`;
+  grid.style.width = `${Math.min(gridSize * 100, 420)}px`;
+
+  document.getElementById('score').textContent = score;
+  document.getElementById('moves').textContent = moves;
+  updateTime();
+
+  let first = null, second = null, lock = false;
+  const nextLevelBtn = document.getElementById('nextLevelBtn');
+  nextLevelBtn.style.display = 'none';
+
+  clearInterval(timer);
+  timer = setInterval(updateTime, 1000);
+
+  cards.forEach(face => {
+    const card = document.createElement('div');
+    card.classList.add('memory-card');
+    card.dataset.face = face;
+    card.textContent = '';
+    let size = Math.floor(Math.min(90, (420 - (gridSize - 1) * 12) / gridSize));
+    card.style.width = card.style.height = `${size}px`;
+    card.style.fontSize = `${size / 1.7}px`;
+
+    card.addEventListener('click', () => {
+      if (lock || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+      card.classList.add('flipped'); card.textContent = face;
+      moves++;
+      document.getElementById('moves').textContent = moves;
+      if (!first) first = card;
+      else {
+        second = card;
+        if (first.dataset.face === second.dataset.face) {
+          first.classList.add('matched'); second.classList.add('matched');
+          first = second = null;
+        } else {
+          lock = true;
+          setTimeout(() => {
+            first.classList.remove('flipped'); second.classList.remove('flipped');
+            first.textContent = ''; second.textContent = '';
+            first = second = null; lock = false;
+          }, 750);
+        }
+      }
+      const matched = document.querySelectorAll('.matched');
+      if (matched.length === cards.length) {
+        setTimeout(() => {
+          score++;  // 1 point per full grid only!
+          document.getElementById('score').textContent = score;
+          updateServerScore(score);
+          nextLevelBtn.style.display = 'flex';
+        }, 300);
+      }
+    });
+    grid.appendChild(card);
+  });
+
+  nextLevelBtn.onclick = () => {
+    nextLevelBtn.style.display = 'none';
+    startGame(round + 1);
+  };
+}
+
+function updateTime() {
+  if (!timeStart) return;
+  let elapsed = Math.floor((Date.now() - timeStart) / 1000);
+  let mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
+  let ss = String(elapsed % 60).padStart(2, '0');
+  document.getElementById('time').textContent = `${mm}:${ss}`;
+}
+
+function updateServerScore(newScore) {
+  fetch('/update_score', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ game: 'memory', score: newScore })
+  });
+}
+
+document.getElementById('exitBtn').addEventListener('click', () => {
+  updateServerScore(score);
+  window.location.href = '/games';
+});
+
+window.onload = () => startGame(round);
+</script>
+</body>
+</html>

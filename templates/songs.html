@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>MANAS AI - Music Therapy</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#1313ec",
+            "background-light": "#f6f6f8",
+            "background-dark": "#101022",
+          },
+          fontFamily: { display: ["Inter"] },
+          borderRadius: {
+            "DEFAULT": "0.5rem",
+            "lg": "1rem",
+            "xl": "1.5rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-position: right 0.75rem center;
+      background-repeat: no-repeat;
+      background-size: 1.5em 1.5em;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    }
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%;
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+    }
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      border-radius: 1rem;
+      background: #000;
+    }
+  </style>
+</head>
+
+<body class="font-display bg-white dark:bg-[#1f2937]">
+  <div class="relative flex min-h-screen flex-col overflow-x-hidden">
+    <div class="layout-container flex flex-col flex-grow z-10">
+      <div class="flex flex-1 justify-center py-5">
+        <div class="layout-content-container flex flex-col w-full px-4">
+          <header class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+            <div class="flex items-center gap-4 text-gray-800 dark:text-white">
+              <div class="size-6 text-[#4F46E5]">
+                <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M36.7273 44C33.9891 44 31.6043 39.8386 30.3636 33.69C29.123 39.8386 26.7382 44 24 44C21.2618 44 18.877 39.8386 17.6364 33.69C16.3957 39.8386 14.0109 44 11.2727 44C7.25611 44 4 35.0457 4 24C4 12.9543 7.25611 4 11.2727 4C14.0109 4 16.3957 8.16144 17.6364 14.31C18.877 8.16144 21.2618 4 24 4C26.7382 4 29.123 8.16144 30.3636 14.31C31.6043 8.16144 33.9891 4 36.7273 4C40.7439 4 44 12.9543 44 24C44 35.0457 40.7439 44 36.7273 44Z" fill="currentColor"></path>
+                </svg>
+              </div>
+              <h2 class="text-xl font-bold tracking-[-0.015em]">MANAS AI</h2>
+            </div>
+            <button onclick="window.location.href='/chat'" class="rounded-full bg-gray-200 dark:bg-gray-700 p-2 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all" title="Return to Chat">
+              <span class="material-symbols-outlined text-[#4F46E5]">arrow_back</span>
+            </button>
+          </header>
+          <main class="flex-1 flex flex-col py-10 px-4 sm:px-6 lg:px-8">
+            <div class="w-full max-w-5xl mx-auto flex flex-col gap-8">
+              <div class="video-wrapper">
+                <iframe id="musicFrame" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="flex flex-col gap-2">
+                  <label for="moodSelect" class="text-sm font-medium text-gray-700 dark:text-gray-300">Select Mood</label>
+                  <select id="moodSelect" onchange="updateVideo()" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-[#60A5FA] focus:border-[#60A5FA] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <option value="happy">Happy</option>
+                    <option value="sad">Sad</option>
+                    <option value="romantic">Romantic</option>
+                    <option value="energetic">Energetic</option>
+                  </select>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <label for="langSelect" class="text-sm font-medium text-gray-700 dark:text-gray-300">Select Language</label>
+                  <select id="langSelect" onchange="updateVideo()" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-[#60A5FA] focus:border-[#60A5FA] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <option value="tam">Tamil</option>
+                    <option value="mal">Malayalam</option>
+                    <option value="hin">Hindi</option>
+                    <option value="eng">English</option>
+                  </select>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <label for="songSelect" class="text-sm font-medium text-gray-700 dark:text-gray-300">Select Song</label>
+                  <select id="songSelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-[#60A5FA] focus:border-[#60A5FA] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <option value="">Select a song</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Song data, cleaned and de-duplicated as per your prev. lists & best practice for embed
+    const songsData = {
+      tam: {
+        sad: [
+          { name: "Unna Nenachen", url: "https://www.youtube.com/embed/8DHF-QXCWh8" },
+          { name: "Vennilave Vennilave", url: "https://www.youtube.com/embed/12rHbb79J8s" },
+          { name: "Udhungada Sangu", url: "https://www.youtube.com/embed/RCXzH27eOIA" },
+          { name: "7mWd8fOG7qI", url: "https://www.youtube.com/embed/7mWd8fOG7qI" }
+        ],
+        romantic: [
+          { name: "YQ6ShcAU_dQ", url: "https://www.youtube.com/embed/YQ6ShcAU_dQ" },
+          { name: "8T7WQrcyE9s", url: "https://www.youtube.com/embed/8T7WQrcyE9s" }
+        ],
+        energetic: [
+          { name: "lM8h5Mm6ODo", url: "https://www.youtube.com/embed/lM8h5Mm6ODo" },
+          { name: "IZHGcU0U_W0", url: "https://www.youtube.com/embed/IZHGcU0U_W0" },
+          { name: "88iypMO9H7g", url: "https://www.youtube.com/embed/88iypMO9H7g" },
+          { name: "tFX2UvkQj44", url: "https://www.youtube.com/embed/tFX2UvkQj44" }
+        ],
+        happy: [
+          { name: "Y7ZHkpRcshQ", url: "https://www.youtube.com/embed/Y7ZHkpRcshQ" },
+          { name: "_fTN72GPgIU", url: "https://www.youtube.com/embed/_fTN72GPgIU" },
+          { name: "Y3-PeuQ7nvY", url: "https://www.youtube.com/embed/Y3-PeuQ7nvY" },
+          { name: "WfNaT4v0Psc", url: "https://www.youtube.com/embed/WfNaT4v0Psc" }
+        ]
+      },
+      mal: {
+        happy: [
+          { name: "Kondattam", url: "https://www.youtube.com/embed/n_gisO-mT14" },
+          { name: "Eyy Banane", url: "https://www.youtube.com/embed/e1BHIY9p2WU" },
+          { name: "Edukka Kaashayi", url: "https://www.youtube.com/embed/hhRaUsEv9YU" },
+          { name: "q025lNfr9aU", url: "https://www.youtube.com/embed/q025lNfr9aU" }
+        ],
+        sad: [
+          { name: "ugwUX3MhkyE", url: "https://www.youtube.com/embed/ugwUX3MhkyE" },
+          { name: "I5NMD5nd-NU", url: "https://www.youtube.com/embed/I5NMD5nd-NU" },
+          { name: "a0goLSCAcBw", url: "https://www.youtube.com/embed/a0goLSCAcBw" }
+        ],
+        romantic: [
+          { name: "nYEoxne_20Y", url: "https://www.youtube.com/embed/nYEoxne_20Y" },
+          { name: "DInfmi-YIiw", url: "https://www.youtube.com/embed/DInfmi-YIiw" },
+          { name: "0G2VxhV_gXM", url: "https://www.youtube.com/embed/0G2VxhV_gXM" }
+        ],
+        energetic: []
+      },
+      hin: {
+        happy: [
+          { name: "_TNYz4i0jLc", url: "https://www.youtube.com/embed/_TNYz4i0jLc" },
+          { name: "Cc_cNEjAh_Y", url: "https://www.youtube.com/embed/Cc_cNEjAh_Y" },
+          { name: "ezgYup6T5Vw", url: "https://www.youtube.com/embed/ezgYup6T5Vw" },
+          { name: "_9geEbZIAJM", url: "https://www.youtube.com/embed/_9geEbZIAJM" }
+        ],
+        sad: [
+          { name: "sK7riqg2mr4", url: "https://www.youtube.com/embed/sK7riqg2mr4" },
+          { name: "cmMiyZaSELo", url: "https://www.youtube.com/embed/cmMiyZaSELo" }
+        ],
+        romantic: [
+          { name: "IJq0yyWug1k", url: "https://www.youtube.com/embed/IJq0yyWug1k" },
+          { name: "fWQpb6T89d4", url: "https://www.youtube.com/embed/fWQpb6T89d4" },
+          { name: "VGPmFSB8qVY", url: "https://www.youtube.com/embed/VGPmFSB8qVY" }
+        ],
+        energetic: [
+          { name: "BKx_B1VZ2kw", url: "https://www.youtube.com/embed/BKx_B1VZ2kw" },
+          { name: "RdBXQlY7FsE", url: "https://www.youtube.com/embed/RdBXQlY7FsE" },
+          { name: "s_-tthrE0Hg", url: "https://www.youtube.com/embed/s_-tthrE0Hg" }
+        ]
+      },
+      eng: {
+        happy: [
+          { name: "Another Love - Tom Odell", url: "https://www.youtube.com/embed/Jkj36B1YuDU" },
+          { name: "WILDFLOWER - Billie Eilish", url: "https://www.youtube.com/embed/8ObJEXpmZ10" }
+        ],
+        sad: [
+          { name: "Another Love - Tom Odell", url: "https://www.youtube.com/embed/Jkj36B1YuDU" },
+          { name: "WILDFLOWER - Billie Eilish", url: "https://www.youtube.com/embed/8ObJEXpmZ10" }
+        ],
+        romantic: [
+          { name: "u2ah9tWTkmk", url: "https://www.youtube.com/embed/u2ah9tWTkmk" },
+          { name: "O8WXFI_MSAI", url: "https://www.youtube.com/embed/O8WXFI_MSAI" }
+        ],
+        energetic: [
+          { name: "a6j5lbt6OLQ", url: "https://www.youtube.com/embed/a6j5lbt6OLQ" },
+          { name: "gEg0yuEz15Q", url: "https://www.youtube.com/embed/gEg0yuEz15Q" }
+        ]
+      }
+    };
+
+    function updateVideo() {
+      const mood = document.getElementById("moodSelect").value;
+      const lang = document.getElementById("langSelect").value;
+      const songsArray = songsData[lang]?.[mood] || [];
+      let fallback = songsArray.length > 0 ? songsArray[0].url : "";
+      document.getElementById("musicFrame").src = fallback;
+      updateSongs(lang, mood);
+    }
+
+    function updateSongs(lang, mood) {
+      const songSelect = document.getElementById("songSelect");
+      songSelect.innerHTML = '<option value="">Select a song</option>';
+      const songsArray = songsData[lang]?.[mood] || [];
+      songsArray.forEach(song => {
+        const option = document.createElement('option');
+        option.value = song.url;
+        option.textContent = song.name;
+        songSelect.appendChild(option);
+      });
+    }
+
+    document.getElementById("songSelect").addEventListener("change", function() {
+      const selectedUrl = this.value;
+      if (selectedUrl) {
+        document.getElementById("musicFrame").src = selectedUrl;
+      }
+    });
+
+    window.onload = () => updateVideo();
+  </script>
+</body>
+</html>

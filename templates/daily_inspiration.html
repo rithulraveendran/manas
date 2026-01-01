@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MANAS AI - Daily Inspiration</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1313ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101022",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .gradient-button {
+            background-image: linear-gradient(to right, #4338CA, #8B5CF6);
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="absolute top-20 left-10 text-[#E0F2FE] opacity-50 dark:opacity-30">
+<svg fill="none" height="150" viewBox="0 0 100 100" width="150" xmlns="http://www.w3.org/2000/svg">
+<path d="M10 10 C 20 80, 80 20, 90 90" fill="none" stroke="currentColor" stroke-width="2"></path>
+</svg>
+</div>
+<div class="absolute bottom-24 right-16 text-[#E0F2FE] opacity-50 dark:opacity-30 transform rotate-45">
+<svg fill="none" height="120" viewBox="0 0 100 100" width="120" xmlns="http://www.w3.org/2000/svg">
+<path d="M50 10 L61.8 38.2 L90.2 38.2 L68.2 55.8 L79 84 L50 66.8 L21 84 L31.8 55.8 L9.8 38.2 L38.2 38.2 Z" fill="none" stroke="currentColor" stroke-width="2"></path>
+</svg>
+</div>
+<div class="absolute top-1/2 right-40 text-[#E0F2FE] opacity-50 dark:opacity-30">
+<svg fill="none" height="80" viewBox="0 0 100 100" width="80" xmlns="http://www.w3.org/2000/svg">
+<path d="M20 50 C 40 20, 60 80, 80 50" fill="none" stroke="currentColor" stroke-width="2"></path>
+</svg>
+</div>
+<div class="absolute bottom-1/4 left-32 text-[#E0F2FE] opacity-50 dark:opacity-30">
+<svg fill="currentColor" height="60" viewBox="0 0 24 24" width="60" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 2C11.45 2 11 2.45 11 3V4.05C7.4 4.56 4.56 7.4 4.05 11H3C2.45 11 2 11.45 2 12C2 12.55 2.45 13 3 13H4.05C4.56 16.6 7.4 19.44 11 19.95V21C11 21.55 11.45 22 12 22C12.55 22 13 21.55 13 21V19.95C16.6 19.44 19.44 16.6 19.95 13H21C21.55 13 22 12.55 22 12C22 11.45 21.55 11 21 11H19.95C19.44 7.4 16.6 4.56 13 4.05V3C13 2.45 12.55 2 12 2ZM12 6C15.31 6 18 8.69 18 12C18 15.31 15.31 18 12 18C8.69 18 6 15.31 6 12C6 8.69 8.69 6 12 6Z"></path>
+</svg>
+</div>
+<div class="layout-container flex h-full grow flex-col z-10">
+<div class="flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col w-full px-4">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-700 px-6 py-4">
+<div class="flex items-center gap-4 text-gray-800 dark:text-white">
+<div class="size-6 text-[#4F46E5]">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M36.7273 44C33.9891 44 31.6043 39.8386 30.3636 33.69C29.123 39.8386 26.7382 44 24 44C21.2618 44 18.877 39.8386 17.6364 33.69C16.3957 39.8386 14.0109 44 11.2727 44C7.25611 44 4 35.0457 4 24C4 12.9543 7.25611 4 11.2727 4C14.0109 4 16.3957 8.16144 17.6364 14.31C18.877 8.16144 21.2618 4 24 4C26.7382 4 29.123 8.16144 30.3636 14.31C31.6043 8.16144 33.9891 4 36.7273 4C40.7439 4 44 12.9543 44 24C44 35.0457 40.7439 44 36.7273 44Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-[-0.015em] text-[#2D3748] dark:text-white">MANAS AI</h2>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<div class="flex items-center gap-8">
+<a href="/chat" class="text-[#2D3748] dark:text-gray-300 text-sm font-medium leading-normal hover:text-[#4F46E5] dark:hover:text-white transition-colors">Chat</a>
+<a href="/daily_inspiration" class="text-[#4F46E5] dark:text-white text-sm font-bold leading-normal">Quotes &amp; Tips</a>
+</div>
+</div>
+</header>
+<main class="flex-1 flex flex-col py-10 px-4 sm:px-6 lg:px-8">
+<div class="flex flex-col gap-8 flex-grow">
+<div class="text-center">
+<h1 class="text-4xl font-bold text-gray-800 dark:text-white">Daily Inspiration</h1>
+</div>
+<div class="grid grid-cols-1 @lg:grid-cols-2 gap-8 flex-grow">
+<div class="p-4 flex flex-col">
+<div class="flex flex-col items-stretch justify-start rounded-xl shadow-lg p-6 h-full bg-gradient-to-br from-sky-400 to-violet-500 text-white flex-grow min-h-0">
+<div class="flex grow flex-col items-stretch justify-start gap-4 min-h-0">
+  <p class="text-white dark:text-white text-2xl font-bold leading-tight tracking-[-0.015em] flex-grow overflow-auto whitespace-normal">
+    {{ quote }}
+  </p>
+  <div class="flex items-end gap-3 justify-between">
+    <p class="text-gray-200 dark:text-gray-300 text-base font-normal leading-normal">{{ tip_author or "" }}</p>
+  </div>
+</div>
+</div>
+</div>
+<div class="p-4 flex flex-col">
+<div class="flex flex-col items-stretch justify-start rounded-xl shadow-lg bg-white dark:bg-gray-800 p-6 h-full flex-grow">
+<div class="flex grow flex-col items-stretch justify-start gap-4">
+<p class="text-gray-500 dark:text-gray-400 text-sm font-medium leading-normal">Tip for the Day</p>
+<p class="text-[#2D3748] dark:text-white text-lg font-medium leading-relaxed tracking-[-0.015em] flex-grow">{{ tip }}</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</div>
+</div></body></html>

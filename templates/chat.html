@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>MANAS AI Chat</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24;
+    }
+    .doodle-bg {
+      background-image: url('data:image/svg+xml;utf8,<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="doodle" width="50" height="50" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M12.5 25 a 12.5 12.5 0 0 1 25 0" stroke="%23e0f2fe" fill="none" stroke-width="1.5" stroke-linecap="round"/><path d="M0 10 h 50" stroke="%23e0f2fe" fill="none" stroke-width="1" stroke-dasharray="2 4"/><path d="M25 0 v 50" stroke="%23e0f2fe" fill="none" stroke-width="1" stroke-dasharray="2 4"/><circle cx="10" cy="40" r="2" stroke="%23e0f2fe" fill="none" stroke-width="1"/><path d="M40 10 l 5 5 l-5 5" stroke="%23e0f2fe" fill="none" stroke-width="1.5" stroke-linecap="round"/></pattern></defs><rect width="100%" height="100%" fill="url(%23doodle)"/></svg>');
+      background-color: #f6f6f8;
+      background-blend-mode: overlay;
+    }
+    .dark .doodle-bg {
+      background-image: url('data:image/svg+xml;utf8,<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="doodle" width="50" height="50" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M12.5 25 a 12.5 12.5 0 0 1 25 0" stroke="%231e293b" fill="none" stroke-width="1.5" stroke-linecap="round"/><path d="M0 10 h 50" stroke="%231e293b" fill="none" stroke-width="1" stroke-dasharray="2 4"/><path d="M25 0 v 50" stroke="%231e293b" fill="none" stroke-width="1" stroke-dasharray="2 4"/><circle cx="10" cy="40" r="2" stroke="%231e293b" fill="none" stroke-width="1"/><path d="M40 10 l 5 5 l-5 5" stroke="%231e293b" fill="none" stroke-width="1.5" stroke-linecap="round"/></pattern></defs><rect width="100%" height="100%" fill="url(%23doodle)"/></svg>');
+      background-color: #101022;
+    }
+    #sosBtn {
+      border-radius: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s ease-in-out;
+      background-color: #e53935;
+      color: white;
+    }
+    #sosBtn:hover {
+      background-color: #b71c1c;
+    }
+  </style>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#1313ec",
+            "background-light": "#f6f6f8",
+            "background-dark": "#101022",
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"]
+          },
+          borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="flex h-screen w-full relative">
+  <aside class="w-[280px] shrink-0 bg-white dark:bg-gray-900/50 flex flex-col p-4 border-r border-gray-200 dark:border-gray-800">
+    <div class="flex items-center gap-3 p-2 mb-4">
+      <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="User avatar" style="background-image: url('/static/bot.png');"></div>
+      <div class="flex flex-col">
+        <h1 class="text-gray-900 dark:text-white text-base font-medium leading-normal">Welcome, {{ user_name or user }}</h1>
+        <p class="text-gray-500 dark:text-gray-400 text-sm font-normal leading-normal">Chat History</p>
+      </div>
+    </div>
+    <button id="newChatBtn" class="mb-4 px-4 py-2 text-white rounded-lg w-full bg-primary hover:bg-primary/90 transition-colors">+ New Chat</button>
+    <div id="chatList" class="flex-grow flex flex-col overflow-y-auto space-y-2">
+      {% for c in user_chats %}
+      <div class="flex justify-between items-center p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-surface-dark transition cursor-pointer">
+        <span class="text-gray-700 dark:text-gray-300 truncate chat-link" data-chat="{{ c }}">{{ c }}</span>
+        <button class="text-red-500 delete-chat" data-chat="{{ c }}">X</button>
+      </div>
+      {% endfor %}
+      {% if not user_chats %}
+      <div class="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 py-12">
+        <span class="material-symbols-outlined text-4xl mb-2">chat_bubble</span>
+        <p class="text-sm">No chats yet.</p>
+        <p class="text-xs">Start a new conversation to see it here.</p>
+      </div>
+      {% endif %}
+    </div>
+    <div class="flex flex-col gap-2 mt-auto">
+      <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 dark:bg-primary/20 hover:bg-primary/20 dark:hover:bg-primary/30 transition-colors" href="/games">
+        <span class="material-symbols-outlined text-primary dark:text-blue-300">stadia_controller</span>
+        <p class="text-gray-800 dark:text-gray-200 text-sm font-medium leading-normal">Game center</p>
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="/daily_inspiration">
+        <span class="material-symbols-outlined text-gray-600 dark:text-gray-400">format_quote</span>
+        <p class="text-gray-800 dark:text-gray-200 text-sm font-medium leading-normal">Quotes</p>
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="/mood">
+        <span class="material-symbols-outlined text-gray-600 dark:text-gray-400">bar_chart</span>
+        <p class="text-gray-800 dark:text-gray-200 text-sm font-medium leading-normal">Graph</p>
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="/songs">
+        <span class="material-symbols-outlined text-gray-600 dark:text-gray-400">music_note</span>
+        <p class="text-gray-800 dark:text-gray-200 text-sm font-medium leading-normal">Music</p>
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="/account">
+        <span class="material-symbols-outlined text-gray-600 dark:text-gray-400">settings</span>
+        <p class="text-gray-800 dark:text-gray-200 text-sm font-medium leading-normal">Settings</p>
+      </a>
+    </div>
+  </aside>
+  <main class="flex flex-1 flex-col bg-background-light dark:bg-background-dark relative">
+    <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-800 px-6 py-3 bg-white dark:bg-gray-900/50 relative">
+      <div class="flex items-center gap-4 text-gray-800 dark:text-white">
+        <div class="size-6 text-primary">
+          <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <path d="M36.7273 44C33.9891 44 31.6043 39.8386 30.3636 33.69C29.123 39.8386 26.7382 44 24 44C21.2618 44 18.877 39.8386 17.6364 33.69C16.3957 39.8386 14.0109 44 11.2727 44C7.25611 44 4 35.0457 4 24C4 12.9543 7.25611 4 11.2727 4C14.0109 4 16.3957 8.16144 17.6364 14.31C18.877 8.16144 21.2618 4 24 4C26.7382 4 29.123 8.16144 30.3636 14.31C31.6043 8.16144 33.9891 4 36.7273 4C40.7439 4 44 12.9543 44 24C44 35.0457 40.7439 44 36.7273 44Z" fill="currentColor"></path>
+          </svg>
+        </div>
+        <h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">MANAS AI</h2>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="logoutBtn" class="flex items-center justify-center rounded-lg h-10 w-10 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" title="Logout">
+          <span class="material-symbols-outlined text-xl">logout</span>
+        </button>
+        <button id="sosBtn" title="Emergency SOS" class="rounded-lg px-3 py-1 font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors select-none">SOS</button>
+      </div>
+    </header>
+    <div id="chatMessages" class="flex-1 overflow-y-auto p-6 space-y-6 doodle-bg"> </div>
+    <div class="px-6 py-4 bg-white dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-800">
+      <div class="flex items-center gap-4 bg-background-light dark:bg-background-dark p-2 rounded-lg border border-gray-300 dark:border-gray-700">
+        <button id="voiceBtn" class="flex items-center justify-center rounded-lg h-10 w-10 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-blue-300 transition-colors shrink-0" title="Voice input"><span class="material-symbols-outlined">mic</span></button>
+        <textarea id="chatInput" rows="1" class="flex-1 bg-transparent text-gray-800 dark:text-gray-200 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-0 border-none text-sm resize-none rounded-lg px-3 py-2" placeholder="Type your message here..."></textarea>
+        <button id="sendBtn" class="flex items-center justify-center rounded-lg h-10 w-10 bg-primary text-white hover:bg-primary/90 transition-colors shrink-0" title="Send message"><span class="material-symbols-outlined">send</span></button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  let currentChat = null;
+  let typingInterval;
+
+  function parseMarkdownToHTML(text) {
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    const lines = text.split('\n');
+    let inList = false, result = '';
+    lines.forEach(line => {
+      if (line.trim().startsWith('* ')) {
+        if (!inList) { result += '<ul>'; inList = true; }
+        result += `<li>${line.trim().substring(2)}</li>`;
+      } else {
+        if (inList) { result += '</ul>'; inList = false; }
+        result += line + '<br>';
+      }
+    });
+    if (inList) result += '</ul>';
+    return result;
+  }
+
+  function addMessage(sender, message) {
+    const chatEl = document.getElementById("chatMessages");
+    const wrapper = document.createElement("div");
+    wrapper.className = "flex items-start gap-3 " + (sender === "user" ? "justify-end" : "");
+    if (sender === "user") {
+      wrapper.innerHTML = `<div class="flex flex-col gap-1 items-end"><p class="text-gray-500 dark:text-gray-400 text-xs font-normal">You</p><div class="bg-gradient-to-r from-blue-500 to-purple-500 text-white dark:from-blue-600 dark:to-purple-600 p-3 rounded-xl rounded-br-none max-w-xl break-words">${message}</div></div><div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-8 h-8 shrink-0" style="background-image: url('/static/user.jpg');" aria-label="User avatar"></div>`;
+    } else {
+      const formatted = parseMarkdownToHTML(message);
+      wrapper.innerHTML = `<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-8 h-8 shrink-0" style="background-image: url('/static/bot.png');" aria-label="Bot avatar"></div><div class="flex flex-col gap-1 items-start"><p class="text-gray-500 dark:text-gray-400 text-xs font-normal">MANAS AI</p><div class="bg-gradient-to-r from-blue-500 to-purple-500 text-white dark:from-blue-600 dark:to-purple-600 p-3 rounded-xl rounded-bl-none max-w-xl break-words"><p>${formatted}</p></div></div>`;
+    }
+    chatEl.appendChild(wrapper);
+    chatEl.scrollTop = chatEl.scrollHeight;
+  }
+
+  function showTypingAnimation() {
+    const chatEl = document.getElementById("chatMessages");
+    const wrapper = document.createElement("div");
+    wrapper.id = "typingAnimation";
+    wrapper.className = "flex items-start gap-3";
+    wrapper.innerHTML = `
+      <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-8 h-8 shrink-0" style="background-image: url('/static/bot.png');" aria-label="Bot avatar"></div>
+      <div class="flex flex-col gap-1 items-start">
+        <p class="text-gray-500 dark:text-gray-400 text-xs font-normal">MANAS AI</p>
+        <div class="bg-gradient-to-r from-blue-500 to-purple-500 text-white dark:from-blue-600 dark:to-purple-600 p-3 rounded-xl rounded-bl-none max-w-xl break-words">
+          <p id="typingDots">.</p>
+        </div>
+      </div>
+    `;
+    chatEl.appendChild(wrapper);
+    chatEl.scrollTop = chatEl.scrollHeight;
+
+    let dots = "";
+    typingInterval = setInterval(() => {
+      dots = dots.length >= 3 ? "." : dots + ".";
+      document.getElementById("typingDots").textContent = dots;
+    }, 200);
+  }
+
+  function removeTypingAnimation() {
+    clearInterval(typingInterval);
+    const typingEl = document.getElementById("typingAnimation");
+    if (typingEl) typingEl.remove();
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+    addMessage('user', msg);
+    input.value = '';
+
+    showTypingAnimation();
+
+    const res = await fetch('/chat_message', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_name: currentChat, message: msg })
+    });
+
+    removeTypingAnimation();
+
+    const data = await res.json();
+    if (data.chat_name) currentChat = data.chat_name;
+    addMessage('bot', data.message || 'Error.');
+    if (data.help_available) {
+      alert("HELP IS AVAILABLE!\n\nYou are not alone. Please reach out to the National Mental Health Helpline:\n\nKIRAN Helpline: 1800-599-0019\nA MAIL HAS BEEN SENT TO THE DEVELOPERS REGARDING THE USE OF SELF-HARM WORDS. OUR DEVELOPERS WILL REACH OUT TO YOU VIA REGISTERED MAIL.\n\nImmediate help and support are available.");
+    }
+  }
+
+  document.getElementById('newChatBtn').onclick = async () => {
+    const res = await fetch('/new_chat', { method: 'POST' });
+    const data = await res.json();
+    if (data.chat_name) {
+      currentChat = data.chat_name;
+      const chatList = document.getElementById('chatList');
+      const div = document.createElement('div');
+      div.className = 'flex justify-between items-center p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-surface-dark transition cursor-pointer';
+      div.innerHTML = `<span class="text-gray-700 dark:text-gray-300 truncate chat-link" data-chat="${data.chat_name}">${data.chat_name}</span><button class="text-red-500 delete-chat" data-chat="${data.chat_name}">X</button>`;
+      chatList.prepend(div);
+      div.querySelector('.chat-link').addEventListener('click', () => loadChat(data.chat_name));
+      div.querySelector('.delete-chat').addEventListener('click', () => deleteChat(data.chat_name, div));
+      loadChat(data.chat_name);
+      addMessage("bot", "Hi there! I'm Manas, your AI mental wellness assistant. How can I help you today?");
+    }
+  };
+
+  function deleteChat(name, el) {
+    fetch('/delete_chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_name: name })
+    }).then(r => r.json()).then(j => {
+      if (j.success) el.remove();
+      if (currentChat === name) {
+        currentChat = null;
+        document.getElementById('chatMessages').innerHTML = "";
+      }
+    });
+  }
+
+  document.querySelectorAll('.chat-link').forEach(el => el.addEventListener('click', () => loadChat(el.dataset.chat)));
+  document.querySelectorAll('.delete-chat').forEach(btn => btn.addEventListener('click', () => deleteChat(btn.dataset.chat, btn.parentElement)));
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SpeechRecognition) {
+    const rec = new SpeechRecognition();
+    rec.lang = 'en-IN';
+    rec.interimResults = false;
+    document.getElementById('voiceBtn').onclick = () => rec.start();
+    rec.onresult = e => {
+      const input = document.getElementById('chatInput');
+      input.value = e.results[0][0].transcript;
+      input.focus();
+    };
+  } else {
+    document.getElementById('voiceBtn').onclick = () => alert('Speech recognition not supported in this browser.');
+  }
+
+  document.getElementById('chatInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  document.getElementById('sendBtn').onclick = sendMessage;
+
+  document.getElementById('logoutBtn').onclick = () => {
+    window.location.href = '/logout';
+  };
+
+  document.getElementById('sosBtn').onclick = () => {
+    const helplines = `
+We have intimated the developers about your request.
+You will be contacted via email as soon as possible.
+Please stay safe and seek immediate help if needed.
+    `;
+    alert(helplines);
+
+    fetch('/send_emergency_email', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'}
+    })
+    .then(response => response.json())
+    .then(data => {
+      if(data.status === 'success') {
+        alert('Emergency email sent successfully.');
+      } else {
+        alert('Failed to send emergency email.');
+      }
+    })
+    .catch(() => {
+      alert('Error occurred while sending email.');
+    });
+  };
+
+  window.addEventListener('load', async () => {
+    if (!currentChat) {
+      const res = await fetch('/new_chat', { method: 'POST' });
+      const data = await res.json();
+      if (data.chat_name) {
+        currentChat = data.chat_name;
+        const chatList = document.getElementById('chatList');
+        const div = document.createElement('div');
+        div.className = 'flex justify-between items-center p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-surface-dark transition cursor-pointer';
+        div.innerHTML = `<span class="text-gray-700 dark:text-gray-300 truncate chat-link" data-chat="${data.chat_name}">${data.chat_name}</span><button class="text-red-500 delete-chat" data-chat="${data.chat_name}">X</button>`;
+        chatList.prepend(div);
+        div.querySelector('.chat-link').addEventListener('click', () => loadChat(data.chat_name));
+        div.querySelector('.delete-chat').addEventListener('click', () => deleteChat(data.chat_name, div));
+        loadChat(data.chat_name);
+        addMessage("bot", "Hi there! I'm Manas, your AI mental wellness assistant. How can I help you today?");
+      }
+    }
+  });
+</script>
+</body>
+</html>

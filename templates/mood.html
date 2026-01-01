@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MANAS AI - My Mood</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<style>
+  .material-symbols-outlined {
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+  }
+</style>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#1313ec",
+          "background-light": "#f6f6f8",
+          "background-dark": "#101022",
+          "accent": "#A0D2EB",
+        },
+        fontFamily: {
+          "display": ["Inter", "sans-serif"]
+        },
+        borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+      },
+    },
+  };
+</script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#333333] dark:text-gray-200">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23a0d2eb\' fill-opacity=\'0.2\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
+<div class="layout-container flex h-full grow flex-col">
+<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col w-full max-w-7xl flex-1">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-black/20 backdrop-blur-sm rounded-xl px-6 py-3">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-6">
+<svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M36.7273 44C33.9891 44 31.6043 39.8386 30.3636 33.69C29.123 39.8386 26.7382 44 24 44C21.2618 44 18.877 39.8386 17.6364 33.69C16.3957 39.8386 14.0109 44 11.2727 44C7.25611 44 4 35.0457 4 24C4 12.9543 7.25611 4 11.2727 4C14.0109 4 16.3957 8.16144 17.6364 14.31C18.877 8.16144 21.2618 4 24 4C26.7382 4 29.123 8.16144 30.3636 14.31C31.6043 8.16144 33.9891 4 36.7273 4C40.7439 4 44 12.9543 44 24C44 35.0457 40.7439 44 36.7273 44Z"></path>
+</svg>
+</div>
+<h2 class="text-gray-800 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">MANAS AI</h2>
+</div>
+<a href="/chat" class="flex items-center justify-center gap-2 px-4 py-2 bg-primary rounded-lg text-white font-semibold shadow-lg hover:bg-primary/90 transition">
+  <span class="material-symbols-outlined">arrow_back</span>
+  <span>Return to Chat</span>
+</a>
+</header>
+<main class="mt-12 flex flex-col items-center justify-center text-center flex-1">
+<div class="flex flex-wrap justify-center gap-3 p-4">
+<div class="flex w-full flex-col gap-3">
+<p class="text-gray-800 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">How are you feeling today?</p>
+<p class="text-gray-500 dark:text-gray-400 text-base font-normal leading-normal">Your mood for today is saved</p>
+</div>
+</div>
+<div class="p-4 grid grid-cols-1 lg:grid-cols-4 gap-8 items-center w-full">
+<div class="flex justify-center lg:col-span-1">
+<div class="bg-white dark:bg-background-dark/50 shadow-lg rounded-full flex items-center justify-center aspect-square w-48 h-48 sm:w-64 sm:h-64">
+<img alt="Smiling face emoji" class="w-32 h-32 sm:w-48 sm:h-48" data-alt="Smiling face emoji" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8ZS3nfgxBUkn6gcr4-CPvomlsiRXgHeBqR1A2xg1uDOfLpkDoCbRwUp50YO-oMci6jxgkydlbL-K1s0QTZOHrcJ_xUL28ZtWffmLtCeFbb_etbqlgJXZF2rKOXo_JFhp7I2QuytvV8rokYqb_dxsQmTRT5ihJAwoUUIJRtcc5GTVOxIjG_zk8cHybz0-e2zJf9RNmY6DJMIP_iEwKlnRNYiHpWb8YDX-XFCgRdMrZGvscbxuVWIeEoxj_Dx-Buv4LHNiLt3wLXHg"/>
+</div>
+</div>
+<div class="flex flex-col gap-4 text-left lg:col-span-3">
+<h3 class="text-xl font-bold text-gray-800 dark:text-white">This Week's Mood Trend</h3>
+<div class="relative h-64 p-4 bg-white/50 dark:bg-black/20 backdrop-blur-sm rounded-xl border border-solid border-gray-200 dark:border-gray-700 shadow-md">
+<canvas id="moodChart"></canvas>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('moodChart');
+  let moodChart = null;
+
+  // Maps TextBlob polarity to mood (1=Sad, 3=Neutral, 5=Excited)
+  function polarityToMood(val) {
+    if (val === null || val === undefined || isNaN(val)) return 3;
+    // Clamp to [-1,1]
+    val = Math.max(-1, Math.min(1, val));
+    // Linear: map -1=>1, 0=>3, 1=>5
+    return Math.round(((val + 1) * 2) + 1);
+  }
+
+  async function fetchMoodData() {
+    try {
+      const response = await fetch('/mood_data');
+      if (!response.ok) throw new Error('Failed to fetch mood data');
+      const data = await response.json();
+      if (data.error) {
+        console.error('Error:', data.error);
+        return;
+      }
+      updateChart(data.mood_scores, data.mood_labels);
+    } catch (error) {
+      console.error('Fetch mood data error:', error);
+    }
+  }
+
+  function updateChart(moodScores, moodLabels) {
+    const mappedScores = moodScores.map(polarityToMood);
+
+    const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, ctx.offsetHeight);
+    gradient.addColorStop(0, 'rgba(74, 86, 226, 0.4)');
+    gradient.addColorStop(1, 'rgba(123, 44, 191, 0.1)');
+
+    if (moodChart) {
+      moodChart.destroy();
+    }
+
+    moodChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: moodLabels,
+        datasets: [{
+          label: 'Mood',
+          data: mappedScores,
+          borderColor: '#4A56E2',
+          backgroundColor: gradient,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: '#4A56E2',
+          pointHoverBackgroundColor: '#7B2CBF',
+          pointHoverBorderColor: '#fff',
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          borderWidth: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            enabled: true,
+            backgroundColor: '#333333',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderRadius: 6,
+            padding: 10,
+            callbacks: {
+              label: function(context) {
+                let label = '';
+                const value = context.parsed.y;
+                const moods = {1: 'Sad', 2: 'Anxious', 3: 'Neutral', 4: 'Happy', 5: 'Excited'};
+                label = moods[value] || "Neutral";
+                return label;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            min: 1,
+            max: 5.5,
+            grid: { display: false, drawBorder: false },
+            ticks: {
+              display: true,
+              stepSize: 1,
+              padding: 10,
+              color: '#9CA3AF',
+              callback: function(value) {
+                const emojis = {1: '😢', 2: '😟', 3: '😐', 4: '😊', 5: '🤩'};
+                return emojis[value] || '';
+              }
+            }
+          },
+          x: {
+            grid: { display: false, drawBorder: false },
+            ticks: { display: true, color: '#9CA3AF' }
+          }
+        }
+      }
+    });
+  }
+
+  // Fetch and update chart every 10 seconds
+  fetchMoodData();
+  setInterval(fetchMoodData, 10000);
+</script>
+</body></html>

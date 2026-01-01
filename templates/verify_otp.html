@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MANAS AI - Enter Verification Code</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        primary: "#4913ec",
+        "background-light": "#f6f6f8",
+        "background-dark": "#151022",
+      },
+      fontFamily: {
+        display: ["Inter", "sans-serif"]
+      },
+      borderRadius: {
+        DEFAULT: "0.5rem",
+        lg: "1rem",
+        xl: "1.5rem",
+        full: "9999px"
+      }
+    }
+  }
+};
+</script>
+<style>
+.otp-input {
+  width: 3.5rem;
+  height: 4rem;
+  text-align: center;
+  font-size: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  transition: all 0.2s ease-in-out;
+  caret-color: #4913ec;
+}
+.otp-input:focus {
+  outline: none;
+  border-color: #4913ec;
+  box-shadow: 0 0 0 3px rgba(73, 19, 236, 0.2);
+}
+.dark .otp-input {
+  background-color: #1f2937;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+.dark .otp-input:focus {
+  border-color: #4913ec;
+  box-shadow: 0 0 0 3px rgba(73, 19, 236, 0.3);
+}
+</style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-[#333333] dark:text-gray-200">
+<div class="relative flex min-h-screen w-full flex-col items-center justify-center p-4 overflow-hidden">
+  <!-- Background SVGs omitted for brevity -->
+  <div class="relative z-10 w-full max-w-md rounded-xl bg-white/70 dark:bg-background-dark/70 backdrop-blur-sm border border-gray-200 dark:border-gray-800 shadow-2xl shadow-primary/10 dark:shadow-primary/20 p-8">
+    <header class="flex items-center justify-center gap-4 whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-800 px-10 py-5">
+      <div class="h-6 w-6 text-primary">
+        <!-- SVG icon omitted for brevity -->
+      </div>
+      <h2 class="text-xl font-bold tracking-[-0.015em] text-gray-800 dark:text-gray-100">MANAS AI</h2>
+    </header>
+    <h1 class="text-3xl font-bold tracking-tight text-center text-gray-900 dark:text-white pt-4">Enter Verification Code</h1>
+    <p class="text-base font-normal leading-normal text-center text-gray-600 dark:text-gray-400 pb-8">We've sent a 6-digit code to your email. The code is valid for 10 minutes.</p>
+    <form id="otp-form" method="POST" action="{{ url_for('verify_otp') }}" class="flex flex-col items-center gap-4" onsubmit="combineOtp(event)">
+      <fieldset class="flex gap-2 sm:gap-4 justify-center">
+        <input aria-label="first digit" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" />
+        <input aria-label="second digit" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" />
+        <input aria-label="third digit" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" />
+        <input aria-label="fourth digit" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" />
+        <input aria-label="fifth digit" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" />
+        <input aria-label="sixth digit" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" />
+      </fieldset>
+      <input type="hidden" name="otp" id="otp"/>
+      <button type="submit" class="w-full rounded-lg bg-gradient-to-r from-[#4A00E0] to-[#8E2DE2] py-3 text-base font-semibold text-white shadow-lg shadow-primary/30 hover:opacity-90 focus:outline-none focus:ring-4 focus:ring-primary/40">
+        Verify
+      </button>
+    </form>
+  </div>
+</div>
+<script>
+const inputs = document.querySelectorAll('.otp-input');
+function combineOtp(e) {
+  const otpDigits = Array.from(inputs).map(i => i.value).join('');
+  document.getElementById('otp').value = otpDigits;
+  // allow form to submit normally
+}
+inputs.forEach((input, index) => {
+  input.addEventListener('input', () => {
+    if(input.value.length === 1 && index < inputs.length - 1) inputs[index + 1].focus();
+  });
+  input.addEventListener('keydown', (e) => {
+    if(e.key === "Backspace" && input.value === "" && index > 0) inputs[index - 1].focus();
+  });
+});
+</script>
+</body>
+</html>

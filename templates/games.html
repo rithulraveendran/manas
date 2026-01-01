@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MANAS AI - Game Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<style>
+.material-symbols-outlined {
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}
+.doodle-bg {
+    background-image: url('data:image/svg+xml;utf8,<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="doodle" width="50" height="50" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M12.5 25 a 12.5 12.5 0 0 1 25 0" stroke="%23e0f2fe" fill="none" stroke-width="1.5" stroke-linecap="round"/><path d="M0 10 h 50" stroke="%23e0f2fe" fill="none" stroke-width="1" stroke-dasharray="2 4"/><path d="M25 0 v 50" stroke="%23e0f2fe" fill="none" stroke-width="1" stroke-dasharray="2 4"/>ircle cx="10" cy="40" r="2" stroke="%23e0f2fe" fill="none" strokeke-width="1"/><path d="M40 10 l 5 5 l-5 5" stroke="%23e0f2fe" fill="none" stroke-width="1.5" stroke-linecap="round"/></pattern></defs><rect width="100%" height="100%" fill="url(%23doodle)"/></svg>');
+    background-color: #f6f6f8;
+    background-blend-mode: overlay;
+}
+.dark .doodle-bg {
+    background-image: url('data:image/svg+xml;utf8,<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="doodle" width="50" height="50" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M12.5 25 a 12.5 12.5 0 0 1 25 0" stroke="%231e293b" fill="none" stroke-width="1.5" stroke-linecap="round"/><path d="M0 10 h 50" stroke="%231e293b" fill="none" stroke-width="1" stroke-dasharray="2 4"/><path d="M25 0 v 50" stroke="%231e293b" fill="none" stroke-width="1" stroke-dasharray="2 4"/>ircle cx="10" cy="40" r="2" stroke="%231e293b" fill="none" strokeke-width="1"/><path d="M40 10 l 5 5 l-5 5" stroke="%231e293b" fill="none" stroke-width="1.5" stroke-linecap="round"/></pattern></defs><rect width="100%" height="100%" fill="url(%23doodle)"/></svg>');
+    background-color: #101022;
+}
+</style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#1313ec",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101022",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="flex h-screen w-full flex-col">
+<main class="flex flex-1 flex-col bg-background-light dark:bg-background-dark">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-800 px-6 py-3 bg-white dark:bg-gray-900/50">
+<div class="flex items-center gap-4 text-gray-800 dark:text-white">
+<div class="size-6 text-primary">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M36.7273 44C33.9891 44 31.6043 39.8386 30.3636 33.69C29.123 39.8386 26.7382 44 24 44C21.2618 44 18.877 39.8386 17.6364 33.69C16.3957 39.8386 14.0109 44 11.2727 44C7.25611 44 4 35.0457 4 24C4 12.9543 7.25611 4 11.2727 4C14.0109 4 16.3957 8.16144 17.6364 14.31C18.877 8.16144 21.2618 4 24 4C26.7382 4 29.123 8.16144 30.3636 14.31C31.6043 8.16144 33.9891 4 36.7273 4C40.7439 4 44 12.9543 44 24C44 35.0457 40.7439 44 36.7273 44Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">MANAS AI - Game Center</h2>
+</div>
+<a class="group flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="/chat">
+<span class="material-symbols-outlined text-xl text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors">arrow_back</span>
+Return to Chat
+</a>
+</header>
+
+<div class="flex-1 overflow-y-auto p-6 md:p-8 lg:p-12 doodle-bg flex flex-col items-center justify-center">
+<div class="w-full max-w-4xl mx-auto">
+<h3 class="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white text-center mb-8">Choose a Game to Play</h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+<a class="group relative flex flex-col items-center justify-center p-6 bg-white dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300" href="/game1">
+<div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+<div class="relative flex flex-col items-center text-center">
+<div class="mb-4 text-blue-500 group-hover:text-white transition-colors duration-300">
+<span class="material-symbols-outlined !text-6xl">stadia_controller</span>
+</div>
+<h4 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-white transition-colors duration-300">Snake Game</h4>
+<p class="text-sm text-gray-500 dark:text-gray-400 group-hover:text-blue-100 transition-colors duration-300 mt-1">Classic arcade fun</p>
+</div>
+</a>
+
+<a class="group relative flex flex-col items-center justify-center p-6 bg-white dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300" href="/game2">
+<div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+<div class="relative flex flex-col items-center text-center">
+<div class="mb-4 text-blue-500 group-hover:text-white transition-colors duration-300">
+<span class="material-symbols-outlined !text-6xl">memory</span>
+</div>
+<h4 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-white transition-colors duration-300">Memory Game</h4>
+<p class="text-sm text-gray-500 dark:text-gray-400 group-hover:text-blue-100 transition-colors duration-300 mt-1">Test your recall skills</p>
+</div>
+</a>
+
+<a class="group relative flex flex-col items-center justify-center p-6 bg-white dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300" href="/game3">
+<div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+<div class="relative flex flex-col items-center text-center">
+<div class="mb-4 text-blue-500 group-hover:text-white transition-colors duration-300">
+<span class="material-symbols-outlined !text-6xl">adjust</span>
+</div>
+<h4 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-white transition-colors duration-300">Focus Ball</h4>
+<p class="text-sm text-gray-500 dark:text-gray-400 group-hover:text-blue-100 transition-colors duration-300 mt-1">Improve your concentration</p>
+</div>
+</a>
+
+</div>
+</div>
+</div>
+</main>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    databaseURL: "YOUR_DB_URL",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MSG_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  const app = firebase.initializeApp(firebaseConfig);
+  firebase.auth();
+  firebase.database();
+</script>
+</body>
+</html>

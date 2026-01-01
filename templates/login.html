@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sign In - MANAS AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<style>
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 24
+}
+.doodle-bg {
+  background-image: url('data:image/svg+xml;utf8,<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="doodle" width="50" height="50" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M12.5 25 a 12.5 12.5 0 0 1 25 0" stroke="%23e0f2fe" fill="none" stroke-width="1.5" stroke-linecap="round"/><path d="M0 10 h 50" stroke="%23e0f2fe" fill="none" stroke-width="1" stroke-dasharray="2 4"/><path d="M25 0 v 50" stroke="%23e0f2fe" fill="none" stroke-width="1" stroke-dasharray="2 4"/><circle cx="10" cy="40" r="2" stroke="%23e0f2fe" fill="none" stroke-width="1"/><path d="M40 10 l 5 5 l-5 5" stroke="%23e0f2fe" fill="none" stroke-width="1.5" stroke-linecap="round"/></pattern></defs><rect width="100%" height="100%" fill="url(%23doodle)"/></svg>');
+  background-color: #ffffff;
+}
+.dark .doodle-bg {
+  background-image: url('data:image/svg+xml;utf8,<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="doodle" width="50" height="50" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M12.5 25 a 12.5 12.5 0 0 1 25 0" stroke="%231e293b" fill="none" stroke-width="1.5" stroke-linecap="round"/><path d="M0 10 h 50" stroke="%231e293b" fill="none" stroke-width="1" stroke-dasharray="2 4"/><path d="M25 0 v 50" stroke="%231e293b" fill="none" stroke-width="1" stroke-dasharray="2 4"/><circle cx="10" cy="40" r="2" stroke="%231e293b" fill="none" stroke-width="1"/><path d="M40 10 l 5 5 l-5 5" stroke="%231e293b" fill="none" stroke-width="1.5" stroke-linecap="round"/></pattern></defs><rect width="100%" height="100%" fill="url(%23doodle)"/></svg>');
+  background-color: #101022;
+}
+</style>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#1313ec",
+        "background-light": "#f6f6f8",
+        "background-dark": "#101022",
+      },
+      fontFamily: {
+        "display": ["Inter", "sans-serif"]
+      },
+      borderRadius: {
+        "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"
+      },
+    },
+  },
+};
+</script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="flex h-screen w-full items-center justify-center doodle-bg dark:bg-background-dark p-4">
+  <div class="w-full max-w-md bg-white dark:bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-lg p-8">
+    <div class="flex flex-col items-center mb-8">
+      <div class="size-12 text-blue-500 mb-2">
+        <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <path d="M36.7273 44C33.9891 44 31.6043 39.8386 30.3636 33.69C29.123 39.8386 26.7382 44 24 44C21.2618 44 18.877 39.8386 17.6364 33.69C16.3957 39.8386 14.0109 44 11.2727 44C7.25611 44 4 35.0457 4 24C4 12.9543 7.25611 4 11.2727 4C14.0109 4 16.3957 8.16144 17.6364 14.31C18.877 8.16144 21.2618 4 24 4C26.7382 4 29.123 8.16144 30.3636 14.31C31.6043 8.16144 33.9891 4 36.7273 4C40.7439 4 44 12.9543 44 24C44 35.0457 40.7439 44 36.7273 44Z" fill="currentColor"></path>
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Sign In to MANAS AI</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Welcome back! Please enter your details.</p>
+    </div>
+
+    <form class="space-y-6" method="POST" action="/login">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="email">Email</label>
+        <input class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white transition" id="email" name="email" placeholder="you@example.com" type="email" required />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="password">Password</label>
+        <div class="relative mt-1">
+          <input class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white transition pr-10" id="password" name="password" placeholder="Enter your password" type="password" required />
+          <button type="button" aria-label="Toggle password visibility" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200" onclick="togglePassword()">
+            <span id="password-toggle-icon" class="material-symbols-outlined text-xl">visibility_off</span>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="w-full mt-4 flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:from-blue-600 dark:to-purple-600 dark:hover:from-blue-700 dark:hover:to-purple-700 transition duration-150 ease-in-out">
+        Sign In
+      </button>
+    </form>
+
+    <p class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+      Don't have an account?
+      <a class="font-medium text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500" href="/signup">Sign up</a>
+    </p>
+  </div>
+</div>
+
+<script>
+function togglePassword() {
+  const passwordInput = document.getElementById("password");
+  const icon = document.getElementById("password-toggle-icon");
+  if (passwordInput.type === "password") {
+    passwordInput.type = "text";
+    icon.textContent = "visibility";
+  } else {
+    passwordInput.type = "password";
+    icon.textContent = "visibility_off";
+  }
+}
+</script>
+</body>
+</html>
