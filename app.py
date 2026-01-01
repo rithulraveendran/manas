@@ -6,20 +6,23 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from groq import Groq
 import json
+
 app = Flask(__name__, static_folder="static", template_folder="templates")
 app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 SENDER_EMAIL = os.environ.get("SENDER_EMAIL")
 APP_PASSWORD = os.environ.get("APP_PASSWORD")
-FIREBASE_KEY_PATH = "/run/secrets/firebase_key.json"
 
+# Firebase JSON from environment variable
 FIREBASE_KEY_JSON = os.environ.get("FIREBASE_KEY_JSON")
 firebase_dict = json.loads(FIREBASE_KEY_JSON)
 
 cred = credentials.Certificate(firebase_dict)
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
+
+db = firestore.client()
 client = Groq(api_key=GROQ_API_KEY)
 
 otp_storage = {}
@@ -356,4 +359,3 @@ def delete_account():
 
 if __name__=="__main__":
     app.run()
-
