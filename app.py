@@ -262,7 +262,7 @@ Your goal is to make the user feel understood and supported.
 
     if distress_detected:
         send_distress_email(
-            "manasemergencysos@gmail.com",
+            "ADD YOUR MAIL ID HERE",
             name,
             current_user_email,
             user_message
