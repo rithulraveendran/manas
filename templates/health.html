@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Manas AI | Health Biometrics</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style type="text/tailwindcss">
+        :root {
+            --primary: #C3B1E1;
+            --background: #F6F6F8;
+            --dark-slate: #2D3748;
+        }
+        @layer components {
+            .glass-header {
+                background: rgba(246, 246, 248, 0.7);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+            }
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#C3B1E1",
+                        "background-light": "#F6F6F8",
+                        "background-dark": "#18151d",
+                    },
+                    fontFamily: {
+                        "sans": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "32": "32px",
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-sans text-[#141316] dark:text-[#e0dee3] min-h-screen">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+    <header class="glass-header sticky top-0 z-50 flex items-center justify-between px-8 py-2 border-b border-slate-200/60 h-14">
+        <div class="flex items-center gap-3">
+            <div class="bg-primary p-1.5 rounded-lg text-white flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">spa</span>
+            </div>
+            <h1 class="text-lg font-extrabold tracking-tighter uppercase text-slate-800 dark:text-white">MANAS AI</h1>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <a href="/chat" class="p-2 text-slate-400 hover:text-primary transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">chat</span>
+            </a>
+            <div class="h-6 w-px bg-slate-200 dark:bg-slate-700"></div>
+            <a href="/account" class="size-8 rounded-full border-2 border-primary overflow-hidden hover:scale-105 transition-transform">
+                <img src="{{ profile_photo_url }}" class="w-full h-full object-cover" alt="Profile">
+            </a>
+            <button id="logoutBtn" class="p-2 text-slate-400 hover:text-slate-600 transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">logout</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-[1280px] mx-auto w-full px-6 lg:px-10 py-10">
+        <div class="mb-10 flex flex-col gap-2">
+            <h2 class="text-4xl font-black tracking-tight text-[#141316] dark:text-white">Health Biometrics</h2>
+            <p class="text-[#736b80] dark:text-[#a59eb2] text-lg">Real-time vital rhythms and health analytics.</p>
+            <div id="google-fit-banner" class="mt-4 flex flex-wrap items-center gap-3">
+                <a id="connect-fit-link" href="/google_connect" class="px-4 py-2 rounded-lg bg-primary text-white font-semibold hover:opacity-90 transition-opacity">
+                    Connect Google Fit
+                </a>
+                <a id="disconnect-fit-link" href="/google_disconnect" class="hidden px-4 py-2 rounded-lg bg-slate-700 text-white font-semibold hover:opacity-90 transition-opacity">
+                    Disconnect
+                </a>
+                <span id="fit-status-text" class="text-sm text-[#736b80] dark:text-[#a59eb2]"></span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white dark:bg-[#201c26] p-8 rounded-2xl shadow-sm border border-[#e0dee3] dark:border-[#2d2836] flex flex-col gap-4">
+                <div class="flex justify-between items-start">
+                    <p class="text-[#736b80] dark:text-[#a59eb2] font-semibold uppercase tracking-wider text-xs">Current Heart Rate</p>
+                    <span class="material-symbols-outlined text-primary">favorite</span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span id="current-hr" class="text-5xl font-black text-[#141316] dark:text-white">--</span>
+                    <span class="text-xl font-medium text-[#736b80]">BPM</span>
+                </div>
+                <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm" id="hr-status">
+                    <span class="material-symbols-outlined text-sm">check_circle</span>
+                    <span>Syncing...</span>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-[#201c26] p-8 rounded-2xl shadow-sm border border-[#e0dee3] dark:border-[#2d2836] flex flex-col gap-4">
+                <div class="flex justify-between items-start">
+                    <p class="text-[#736b80] dark:text-[#a59eb2] font-semibold uppercase tracking-wider text-xs">Stress Level</p>
+                    <span class="material-symbols-outlined text-primary">psychology</span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span id="stress-status" class="text-5xl font-black text-[#141316] dark:text-white uppercase">--</span>
+                </div>
+                <div class="flex gap-1.5 h-2 w-full mt-2">
+                    <div id="stress-bar-1" class="flex-1 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
+                    <div id="stress-bar-2" class="flex-1 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
+                    <div id="stress-bar-3" class="flex-1 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
+                    <div id="stress-bar-4" class="flex-1 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-[#201c26] p-8 rounded-2xl shadow-sm border border-[#e0dee3] dark:border-[#2d2836] flex flex-col gap-4">
+                <div class="flex justify-between items-start">
+                    <p class="text-[#736b80] dark:text-[#a59eb2] font-semibold uppercase tracking-wider text-xs">Average Daily HR</p>
+                    <span class="material-symbols-outlined text-primary">analytics</span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span id="avg-hr" class="text-5xl font-black text-[#141316] dark:text-white">--</span>
+                    <span class="text-xl font-medium text-[#736b80]">BPM</span>
+                </div>
+                <div class="w-full h-2.5 bg-background-light dark:bg-[#2d2836] rounded-full overflow-hidden mt-2">
+                    <div id="avg-hr-progress" class="h-full bg-gradient-to-r from-primary to-[#a78bfa] transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white dark:bg-[#201c26] p-8 rounded-2xl shadow-sm border border-[#e0dee3] dark:border-[#2d2836]">
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold">Vital Rhythms</h3>
+                    <p class="text-sm text-[#736b80] dark:text-[#a59eb2]">Live trend (Updates every 30s)</p>
+                </div>
+                <div class="h-64 w-full">
+                    <canvas id="hrChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-[#201c26] p-8 rounded-2xl shadow-sm border border-[#e0dee3] dark:border-[#2d2836]">
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold">Rest Cycles</h3>
+                    <p class="text-sm text-[#736b80] dark:text-[#a59eb2]">Weekly sleep duration analysis</p>
+                </div>
+                <div class="h-64 w-full">
+                    <canvas id="sleepChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    let hrChart, sleepChart;
+    let fitConnected = false;
+
+    function setFitStatus(connected, message) {
+        fitConnected = connected;
+        document.getElementById('connect-fit-link').classList.toggle('hidden', connected);
+        document.getElementById('disconnect-fit-link').classList.toggle('hidden', !connected);
+        document.getElementById('fit-status-text').innerText = message || '';
+    }
+
+    function initCharts() {
+        const hrCtx = document.getElementById('hrChart').getContext('2d');
+        hrChart = new Chart(hrCtx, {
+            type: 'line',
+            data: {
+                labels: Array(20).fill(''),
+                datasets: [{
+                    label: 'BPM',
+                    data: [],
+                    borderColor: '#c4b2e1',
+                    backgroundColor: 'rgba(196, 178, 225, 0.2)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    pointHoverRadius: 5
+                }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true,
+                        callbacks: {
+                            label: (context) => `${context.parsed.y} BPM`
+                        }
+                    }
+                },
+                scales: { 
+                    y: { min: 40, max: 160, grid: { color: 'rgba(0,0,0,0.05)' } },
+                    x: { display: false }
+                } 
+            }
+        });
+
+        const sleepCtx = document.getElementById('sleepChart').getContext('2d');
+        sleepChart = new Chart(sleepCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Hours',
+                    data: [],
+                    backgroundColor: '#c4b2e1',
+                    hoverBackgroundColor: '#a78bfa',
+                    borderRadius: 6
+                }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true,
+                        callbacks: {
+                            label: (context) => `${Number(context.parsed.y).toFixed(2)} hours`
+                        }
+                    }
+                },
+                scales: { 
+                    y: { beginAtZero: true, max: 12, grid: { color: 'rgba(0,0,0,0.05)' } }
+                } 
+            }
+        });
+    }
+
+    async function updateData() {
+        try {
+            const res = await fetch('/get_health_data');
+            const data = await res.json();
+            
+            if (!data.error) {
+                setFitStatus(true, "Google Fit connected");
+                document.getElementById('current-hr').innerText = data.current_hr;
+                document.getElementById('stress-status').innerText = data.stress_status;
+                document.getElementById('hr-status').querySelector('span:last-child').innerText = "Normal Range";
+                
+                const stressLevel = data.stress_status.toLowerCase();
+                const bars = ['stress-bar-1', 'stress-bar-2', 'stress-bar-3', 'stress-bar-4'];
+                bars.forEach((id, index) => {
+                    const bar = document.getElementById(id);
+                    bar.className = "flex-1 rounded-full " + (index === 0 ? "bg-emerald-400" : "bg-slate-100 dark:bg-slate-800");
+                });
+
+                hrChart.data.datasets[0].data = data.heart_rates;
+                hrChart.update();
+
+                if(data.heart_rates.length > 0) {
+                    const avg = Math.round(data.heart_rates.reduce((a, b) => a + b) / data.heart_rates.length);
+                    document.getElementById('avg-hr').innerText = avg;
+                    document.getElementById('avg-hr-progress').style.width = ((avg / 160) * 100) + "%";
+                }
+            } else if (data.not_connected) {
+                setFitStatus(false, "Connect Google Fit to view your heart-rate and sleep data.");
+                document.getElementById('current-hr').innerText = "--";
+                document.getElementById('stress-status').innerText = "--";
+                document.getElementById('avg-hr').innerText = "--";
+                hrChart.data.datasets[0].data = [];
+                hrChart.update();
+                sleepChart.data.datasets[0].data = [];
+                sleepChart.update();
+                return;
+            } else {
+                setFitStatus(false, data.error || "Google Fit sync failed.");
+            }
+
+            const sleepRes = await fetch('/get_weekly_sleep');
+            const sleepData = await sleepRes.json();
+            if (!sleepData.error) {
+                sleepChart.data.labels = sleepData.labels;
+                sleepChart.data.datasets[0].data = sleepData.values;
+                sleepChart.update();
+            } else if (sleepData.not_connected && !fitConnected) {
+                setFitStatus(false, "Connect Google Fit to view your heart-rate and sleep data.");
+            }
+        } catch (e) {
+            console.error("Update failed", e);
+            setFitStatus(false, "Unable to reach health service.");
+        }
+    }
+
+    window.onload = () => {
+        initCharts();
+        updateData();
+        setInterval(updateData, 30000);
+        document.getElementById('logoutBtn').onclick = () => { window.location.href = '/logout'; };
+    };
+</script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Verify Code - MANAS AI</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <style type="text/tailwindcss">
+        :root {
+            --primary: #C3B1E1;
+            --background: #F6F6F8;
+            --dark-slate: #2D3748;
+        }
+        @layer components {
+            .glass-card {
+                background: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+            .otp-input {
+                width: 3.2rem;
+                height: 4rem;
+                text-align: center;
+                font-size: 1.5rem;
+                font-weight: 700;
+                border-radius: 1rem;
+                border: none;
+                background-color: white;
+                box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+                transition: all 0.2s ease;
+            }
+            .otp-input:focus {
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(195, 177, 225, 0.5);
+                transform: translateY(-2px);
+            }
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#C3B1E1",
+                        background: "#F6F6F8",
+                        "dark-slate": "#2D3748",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="font-sans bg-background text-dark-slate min-h-screen flex items-center justify-center p-6">
+
+    <div class="w-full max-w-md glass-card rounded-[2.5rem] shadow-2xl shadow-primary/10 p-10">
+        
+        <div class="flex flex-col items-center mb-8">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="bg-primary p-2 rounded-xl text-white flex items-center justify-center shadow-lg shadow-primary/30">
+                    <span class="material-symbols-outlined text-2xl">spa</span>
+                </div>
+                <h1 class="text-2xl font-extrabold tracking-tighter uppercase text-slate-800">MANAS AI</h1>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800">Verify Your Email</h2>
+            <p class="text-sm text-center text-slate-500 mt-2 px-4">
+                We've sent a 6-digit code to your inbox. Please enter it below.
+            </p>
+        </div>
+
+        <form id="otp-form" method="POST" action="{{ url_for('verify_otp') }}" class="space-y-8" onsubmit="combineOtp(event)">
+            <fieldset class="flex gap-2 sm:gap-3 justify-center">
+                <input aria-label="digit 1" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" autofocus />
+                <input aria-label="digit 2" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" />
+                <input aria-label="digit 3" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" />
+                <input aria-label="digit 4" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" />
+                <input aria-label="digit 5" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" />
+                <input aria-label="digit 6" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" />
+            </fieldset>
+
+            <input type="hidden" name="otp" id="otp"/>
+
+            <div class="space-y-4">
+                <button type="submit" class="w-full py-4 px-6 bg-primary text-white rounded-2xl font-bold uppercase tracking-widest text-xs shadow-lg shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    Verify Account
+                </button>
+                
+                <p class="text-center text-xs font-medium text-slate-400">
+                    Didn't receive the code? 
+                    <a href="#" class="text-primary font-bold hover:underline">Resend</a>
+                </p>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const inputs = document.querySelectorAll('.otp-input');
+        
+        function combineOtp(e) {
+            const otpDigits = Array.from(inputs).map(i => i.value).join('');
+            document.getElementById('otp').value = otpDigits;
+        }
+
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.inputType === "deleteContentBackward") return;
+                if (input.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === "Backspace" && input.value === "" && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+
+            // Handle paste
+            input.addEventListener('paste', (e) => {
+                const data = e.clipboardData.getData('text').slice(0, 6).split('');
+                data.forEach((char, i) => {
+                    if (inputs[i]) inputs[i].value = char;
+                });
+                inputs[Math.min(data.length, inputs.length - 1)].focus();
+                e.preventDefault();
+            });
+        });
+    </script>
+</body>
+</html>

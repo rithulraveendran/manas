@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Daily Inspiration - Manas AI</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style type="text/tailwindcss">
+        :root {
+            --primary: #C3B1E1;
+            --background: #F6F6F8;
+            --dark-slate: #2D3748;
+        }
+        @layer components {
+            .glass-header {
+                background: rgba(246, 246, 248, 0.7);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+            }
+            .hover-lift {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .hover-lift:hover {
+                transform: translateY(-4px);
+            }
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#C3B1E1",
+                        "background": "#F6F6F8",
+                        "dark-slate": "#2D3748",
+                    },
+                    fontFamily: {
+                        "sans": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "32": "32px",
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background font-sans text-dark-slate min-h-screen flex flex-col">
+    <header class="glass-header sticky top-0 z-50 flex items-center justify-between px-8 py-2 border-b border-slate-200/60 h-14">
+        <div class="flex items-center gap-3">
+            <div class="bg-primary p-1.5 rounded-lg text-white flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">spa</span>
+            </div>
+            <h1 class="text-lg font-extrabold tracking-tighter uppercase text-slate-800">MANAS AI</h1>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <a href="/chat" class="p-2 text-slate-400 hover:text-primary transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">chat</span>
+            </a>
+            <div class="h-6 w-px bg-slate-200"></div>
+            <a href="/account" class="size-8 rounded-full border-2 border-primary overflow-hidden hover:scale-105 transition-transform">
+                <img src="{{ profile_photo_url }}" class="w-full h-full object-cover" alt="Profile">
+            </a>
+            <button id="logoutBtn" class="p-2 text-slate-400 hover:text-slate-600 transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">logout</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col items-center justify-center max-w-[1200px] mx-auto w-full px-6 lg:px-10 py-10">
+        <div class="mb-12 text-center w-full">
+            <h2 class="text-5xl md:text-6xl font-black tracking-tight text-dark-slate">Daily Inspiration</h2>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch w-full">
+            <div class="hover-lift bg-primary rounded-[3rem] p-12 md:p-16 flex flex-col items-center shadow-2xl shadow-primary/30 relative min-h-[500px] overflow-hidden">
+                <div class="w-full text-left mb-4">
+                    <span class="font-black text-8xl leading-none italic text-white/30 select-none">“</span>
+                </div>
+                
+                <div class="flex-1 flex flex-col items-center justify-center w-full px-4">
+                    <p class="text-4xl md:text-5xl font-extrabold text-white leading-tight italic tracking-tighter text-center mb-8">
+                        "{{ quote }}"
+                    </p>
+                    
+                    <p class="text-xl md:text-2xl font-bold text-white tracking-tight italic text-center">
+                        — {{ tip_author }}
+                    </p>
+
+                    <div class="mt-10 flex flex-col items-center gap-2">
+                        <div class="w-20 h-[1.5px] bg-white opacity-40"></div>
+                        <div class="w-6 h-[1.5px] bg-white opacity-40"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hover-lift bg-white rounded-[3rem] p-10 md:p-14 flex flex-col justify-center border border-gray-100 shadow-sm shadow-gray-200/50 min-h-[500px]">
+                <div class="mb-8">
+                    <span class="text-xs font-black tracking-[0.3em] text-primary uppercase border-b-2 border-primary/20 pb-1">Tip for the Day</span>
+                </div>
+                <div class="flex flex-col gap-6 items-center lg:items-start text-center lg:text-left">
+                    <div class="bg-primary/10 p-5 rounded-2xl shrink-0">
+                        <span class="material-symbols-outlined text-primary text-4xl">lightbulb</span>
+                    </div>
+                    <p class="text-3xl md:text-4xl font-extrabold text-dark-slate leading-[1.2] tracking-tight">
+                        {{ tip }}
+                    </p>
+                </div>
+                <div class="mt-12 flex justify-end">
+                    <button class="flex items-center gap-2 text-primary font-black hover:gap-3 transition-all uppercase text-sm tracking-widest" onclick="window.location.reload();">
+                        Refresh
+                        <span class="material-symbols-outlined">refresh</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-16 flex justify-center w-full">
+            <div class="flex items-center gap-4 text-gray-300">
+                <div class="h-px w-12 bg-current"></div>
+                <span class="material-symbols-outlined text-sm">filter_vintage</span>
+                <span class="text-xs font-medium uppercase tracking-[0.3em]">Find your center</span>
+                <span class="material-symbols-outlined text-sm">filter_vintage</span>
+                <div class="h-px w-12 bg-current"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('logoutBtn').onclick = () => { window.location.href = '/logout'; };
+    </script>
+</body>
+</html>

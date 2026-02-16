@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Music Therapy - MANAS AI</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://w.soundcloud.com/player/api.js"></script>
+    <style type="text/tailwindcss">
+        :root {
+            --primary: #C3B1E1;
+            --background: #F6F6F8;
+            --dark-slate: #2D3748;
+        }
+        @layer components {
+            .glass-header {
+                background: rgba(246, 246, 248, 0.7);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                transition: all 0.5s ease;
+            }
+            .zen-active .glass-header {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            .audio-container {
+                position: relative;
+                width: 100%;
+                max-width: 900px;
+                min-height: 220px;
+                border-radius: 1.5rem;
+                overflow: hidden;
+                background: linear-gradient(140deg, rgba(195, 177, 225, 0.22), rgba(164, 141, 205, 0.12));
+                border: 1px solid rgba(195, 177, 225, 0.35);
+                backdrop-filter: blur(18px);
+                -webkit-backdrop-filter: blur(18px);
+                box-shadow:
+                    0 20px 50px -20px rgba(195, 177, 225, 0.55),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+                transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+                padding: 2rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+            .audio-container::before {
+                content: "";
+                position: absolute;
+                top: -30%;
+                right: -12%;
+                width: 260px;
+                height: 260px;
+                border-radius: 9999px;
+                background: radial-gradient(circle, rgba(195, 177, 225, 0.55), rgba(195, 177, 225, 0));
+                pointer-events: none;
+            }
+            .audio-container::after {
+                content: "";
+                position: absolute;
+                bottom: -35%;
+                left: -10%;
+                width: 220px;
+                height: 220px;
+                border-radius: 9999px;
+                background: radial-gradient(circle, rgba(147, 116, 194, 0.35), rgba(147, 116, 194, 0));
+                pointer-events: none;
+            }
+            .sc-hidden {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                opacity: 0;
+                pointer-events: none;
+                left: -9999px;
+                top: -9999px;
+            }
+            .player-meta {
+                position: relative;
+                z-index: 1;
+                color: #2d3748;
+            }
+            .player-title {
+                font-size: 1.25rem;
+                font-weight: 800;
+                line-height: 1.2;
+            }
+            .player-artist {
+                margin-top: 0.4rem;
+                opacity: 0.72;
+                font-size: 0.9rem;
+                font-weight: 600;
+                letter-spacing: 0.03em;
+            }
+            .player-row {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                position: relative;
+                z-index: 1;
+            }
+            .play-btn {
+                width: 3.4rem;
+                height: 3.4rem;
+                border-radius: 9999px;
+                border: 0;
+                cursor: pointer;
+                background: linear-gradient(135deg, #c3b1e1, #a88fd8);
+                color: #fff;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 10px 20px rgba(168, 143, 216, 0.45);
+                transition: transform 0.18s ease;
+            }
+            .play-btn:hover {
+                transform: scale(1.05);
+            }
+            .time-row {
+                margin-top: 0.9rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                color: rgba(45,55,72,0.75);
+                font-size: 0.75rem;
+                font-weight: 700;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                position: relative;
+                z-index: 1;
+            }
+            .progress-track {
+                margin-top: 0.6rem;
+                width: 100%;
+                height: 0.35rem;
+                border-radius: 999px;
+                background: rgba(195, 177, 225, 0.35);
+                overflow: hidden;
+                position: relative;
+                z-index: 1;
+                cursor: pointer;
+            }
+            .progress-fill {
+                width: 0%;
+                height: 100%;
+                background: linear-gradient(90deg, #b395df, #8f6ec9);
+                transition: width 0.1s linear;
+            }
+            .zen-active .audio-container {
+                transform: scale(1.03);
+                box-shadow: 0 0 70px rgba(0,0,0,0.75);
+            }
+            .zen-hide { transition: all 0.5s ease; }
+            .zen-active .zen-hide {
+                opacity: 0;
+                pointer-events: none;
+                transform: translateY(40px);
+            }
+            body { transition: background-color 0.6s ease; }
+            .zen-active { background-color: #0a0a0c !important; }
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: { "primary": "#C3B1E1", "background": "#F6F6F8", "dark-slate": "#2D3748" },
+                    fontFamily: { "sans": ["Inter", "sans-serif"] }
+                },
+            },
+        }
+    </script>
+</head>
+<body id="mainBody" class="bg-background font-sans text-dark-slate min-h-screen flex flex-col">
+
+    <header class="glass-header sticky top-0 z-50 flex items-center justify-between px-8 py-2 border-b border-slate-200/60 h-14">
+        <div class="flex items-center gap-3">
+            <div class="bg-primary p-1.5 rounded-lg text-white flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">spa</span>
+            </div>
+            <h1 class="text-lg font-extrabold tracking-tighter uppercase text-slate-800">MANAS AI</h1>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <a href="/chat" class="p-2 text-slate-400 hover:text-primary transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">chat</span>
+            </a>
+            <div class="h-6 w-px bg-slate-200"></div>
+            <a href="/account" class="size-8 rounded-full border-2 border-primary overflow-hidden">
+                <img src="{{ profile_photo_url }}" class="w-full h-full object-cover" alt="Profile">
+            </a>
+            <button id="logoutBtn" class="p-2 text-slate-400 hover:text-slate-600 transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">logout</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col items-center justify-center max-w-[1200px] mx-auto w-full px-6 py-10">
+        <div class="zen-hide mb-12 text-center">
+            <h2 class="text-4xl md:text-5xl font-extrabold tracking-tighter uppercase text-dark-slate">Music Therapy</h2>
+            <p class="text-primary font-bold uppercase tracking-[0.5em] text-[10px] mt-1">Sonic Healing by Manas AI</p>
+        </div>
+
+        <div class="w-full flex flex-col items-center space-y-10 z-10">
+            <div class="audio-container">
+                <iframe id="musicFrame" class="sc-hidden" src="" allow="autoplay" allowfullscreen></iframe>
+                <div class="player-meta">
+                    <p id="trackTitle" class="player-title">Choose a song</p>
+                    <p id="trackArtist" class="player-artist">MANAS AI Music Therapy</p>
+                </div>
+                <div>
+                    <div class="player-row">
+                        <button id="playPauseBtn" type="button" class="play-btn">
+                            <span id="playPauseIcon" class="material-symbols-outlined">play_arrow</span>
+                        </button>
+                    </div>
+                    <div id="progressTrack" class="progress-track">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <div class="time-row">
+                        <span id="currentTime">00:00</span>
+                        <span id="totalTime">00:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="toggleZen()" class="flex items-center gap-2 px-12 py-4 bg-primary text-white hover:bg-[#b3a1d1] font-black uppercase tracking-widest text-xs rounded-full transition-all shadow-lg shadow-primary/20">
+                <span id="zenIcon" class="material-symbols-outlined">filter_vintage</span>
+                <span id="zenText">Enter Zen Mode</span>
+            </button>
+
+            <div class="zen-hide grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-[1000px]">
+                <div class="flex flex-col gap-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Mood</label>
+                    <select id="moodSelect" onchange="updateUI()" class="bg-white border-none rounded-2xl px-6 py-5 shadow-sm font-bold text-dark-slate focus:ring-2 focus:ring-primary appearance-none cursor-pointer">
+                        <option value="happy">Happy & Upbeat</option>
+                        <option value="sad">Soulful & Calm</option>
+                        <option value="romantic">Love & Warmth</option>
+                        <option value="energetic">Pure Energy</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Language</label>
+                    <select id="langSelect" onchange="updateUI()" class="bg-white border-none rounded-2xl px-6 py-5 shadow-sm font-bold text-dark-slate focus:ring-2 focus:ring-primary appearance-none cursor-pointer">
+                        <option value="eng">English</option>
+                        <option value="tam">Tamil</option>
+                        <option value="hin">Hindi</option>
+                        <option value="mal">Malayalam</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Tracks</label>
+                    <select id="songSelect" onchange="playSelected()" class="bg-white border-none rounded-2xl px-6 py-5 shadow-sm font-bold text-dark-slate focus:ring-2 focus:ring-primary appearance-none cursor-pointer">
+                    </select>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('logoutBtn').onclick = () => { window.location.href = '/logout'; };
+
+        const songsData = {
+            eng: {
+                happy: [{name:"Happy",url:"https://soundcloud.com/pharrellwilliams/happy-from-despicable-me-2"},{name:"Can't Stop The Feeling",url:"https://soundcloud.com/justin-timberlake-official/cant-stop-the-feeling-original"},{name:"Levitating",url:"https://soundcloud.com/dua-lipa-101/levitating"},{name:"Uptown Funk",url:"https://soundcloud.com/brunomars/uptown-funk"},{name:"Shake It Off",url:"https://soundcloud.com/taylorswiftofficial/shake-it-off"}],
+                sad: [{name:"Fix You",url:"https://soundcloud.com/coldplay/fix-you"},{name:"Someone Like You",url:"https://soundcloud.com/adele/someone-like-you"},{name:"Stay With Me",url:"https://soundcloud.com/samsmithworld/stay-with-me"},{name:"All I Want",url:"https://soundcloud.com/kodaline/all-i-want"},{name:"Let Her Go",url:"https://soundcloud.com/passengerofficial/let-her-go-1"}],
+                romantic: [{name:"Perfect",url:"https://soundcloud.com/edsheeran/perfect"},{name:"All of Me",url:"https://soundcloud.com/johnlegend/all-of-me"},{name:"A Thousand Years",url:"https://soundcloud.com/christinaperri/a-thousand-years"},{name:"Thinking Out Loud",url:"https://soundcloud.com/edsheeran/thinking-out-loud"},{name:"Just The Way You Are",url:"https://soundcloud.com/brunomars/just-the-way-you-are"}],
+                energetic: [{name:"Believer",url:"https://soundcloud.com/imaginedragons/believer"},{name:"Blinding Lights",url:"https://soundcloud.com/theweeknd/blinding-lights"},{name:"Thunder",url:"https://soundcloud.com/imaginedragons/thunder"},{name:"Titanium",url:"https://soundcloud.com/davidguetta/titanium-feat-sia"},{name:"Eye of the Tiger",url:"https://soundcloud.com/survivor-official/eye-of-the-tiger"}]
+            },
+            tam: {
+                happy: [{name:"Arabic Kuthu",url:"https://soundcloud.com/anirudhofficial/arabic-kuthu-halamithi-habibo"},{name:"Rowdy Baby",url:"https://soundcloud.com/yuvan-shankar-raja/rowdy-baby"},{name:"Vaathi Coming",url:"https://soundcloud.com/anirudhofficial/vaathi-coming"},{name:"Kutty Story",url:"https://soundcloud.com/anirudhofficial/kutty-story"},{name:"Enjoy Enjaami",url:"https://soundcloud.com/dhee-official/enjoy-enjaami"}],
+                sad: [{name:"Amma Amma",url:"https://soundcloud.com/anirudhofficial/amma-amma"},{name:"Kanave Kanave",url:"https://soundcloud.com/anirudhofficial/kanave-kanave"},{name:"Po Nee Po",url:"https://soundcloud.com/anirudhofficial/po-nee-po"},{name:"Unna Nenachen",url:"https://soundcloud.com/ilayaraja-official/unna-nenachen"},{name:"Punnagaye",url:"https://soundcloud.com/d-imman-official/punnagaye"}],
+                romantic: [{name:"Kannaana Kanney",url:"https://soundcloud.com/d-imman-official/kannaana-kanney"},{name:"Vaseegara",url:"https://soundcloud.com/harris-jayaraj-official/vaseegara"},{name:"Enna Solla",url:"https://soundcloud.com/anirudhofficial/enna-solla"},{name:"Munbe Vaa",url:"https://soundcloud.com/arrahmanofficial/munbe-vaa"},{name:"Nee Korinaal",url:"https://soundcloud.com/anirudhofficial/nee-korinaal"}],
+                energetic: [{name:"Vikram Title",url:"https://soundcloud.com/anirudhofficial/vikram-title-track"},{name:"Naa Ready",url:"https://soundcloud.com/anirudhofficial/naa-ready"},{name:"Hukum",url:"https://soundcloud.com/anirudhofficial/hukum"},{name:"Thee Thalapathy",url:"https://soundcloud.com/anirudhofficial/thee-thalapathy"},{name:"Top Tucker",url:"https://soundcloud.com/yuvan-shankar-raja/top-tucker"}]
+            },
+            hin: {
+                happy: [{name:"Zinda",url:"https://soundcloud.com/amit-trivedi-official/zinda"},{name:"Gallan Goodiyaan",url:"https://soundcloud.com/tseries/gallan-goodiyaan"},{name:"Badtameez Dil",url:"https://soundcloud.com/pritamofficial/badtameez-dil"},{name:"Kar Gayi Chull",url:"https://soundcloud.com/badshah-official/kar-gayi-chull"},{name:"Kala Chashma",url:"https://soundcloud.com/badshah-official/kala-chashma"}],
+                sad: [{name:"Agar Tum Saath Ho",url:"https://soundcloud.com/tseries/agar-tum-saath-ho"},{name:"Channa Mereya",url:"https://soundcloud.com/pritamofficial/channa-mereya"},{name:"Kabira",url:"https://soundcloud.com/pritamofficial/kabira"},{name:"Tujhe Kitna Chahne",url:"https://soundcloud.com/mithoonofficial/tujhe-kitna-chahne-lage"},{name:"Hamari Adhuri Kahani",url:"https://soundcloud.com/mithoonofficial/hamari-adhuri-kahani"}],
+                romantic: [{name:"Tum Se Hi",url:"https://soundcloud.com/pritamofficial/tum-se-hi"},{name:"Raataan Lambiyan",url:"https://soundcloud.com/tanishk-bagchi/raataan-lambiyan"},{name:"Kesariya",url:"https://soundcloud.com/pritamofficial/kesariya"},{name:"Pee Loon",url:"https://soundcloud.com/pritamofficial/pee-loon"},{name:"Tera Ban Jaunga",url:"https://soundcloud.com/akhilsachdevaofficial/tera-ban-jaunga"}],
+                energetic: [{name:"Kar Har Maidaan",url:"https://soundcloud.com/tseries/kar-har-maidaan-fateh"},{name:"Sultan Title",url:"https://soundcloud.com/vishalshekharofficial/sultan-title-track"},{name:"Malhari",url:"https://soundcloud.com/sanjayleelabhansali/malhari"},{name:"Dangal Title",url:"https://soundcloud.com/pritamofficial/dangal-title-track"},{name:"Jai Ho",url:"https://soundcloud.com/arrahmanofficial/jai-ho"}]
+            },
+            mal: {
+                happy: [{name:"Kondattam",url:"https://soundcloud.com/jacob-varghese/kondattam"},{name:"Jimikki Kammal",url:"https://soundcloud.com/shaan-rahman-official/jimikki-kammal"},{name:"Eyy Banane",url:"https://soundcloud.com/vipin-das/eyy-banane"},{name:"Malare",url:"https://soundcloud.com/rajesh-murugesan/malare"},{name:"Scene Contra",url:"https://soundcloud.com/rajesh-murugesan/scene-contra"}],
+                sad: [{name:"Akale",url:"https://soundcloud.com/jakes-bejoy/akale"},{name:"Etho Mazhayil",url:"https://soundcloud.com/govind-vasantha/etho-mazhayil"},{name:"Mounam",url:"https://soundcloud.com/jakes-bejoy/mounam"},{name:"Kanneer Poovinte",url:"https://soundcloud.com/mg-sreekumar/kanneer-poovinte"},{name:"Aaro Viral",url:"https://soundcloud.com/sharreth-official/aaro-viral-meetti"}],
+                romantic: [{name:"Uyiril Thodu",url:"https://soundcloud.com/shaan-rahman-official/uyiril-thodu"},{name:"Pavizha Mazha",url:"https://soundcloud.com/ps-jayhari/pavizha-mazha"},{name:"Poomuthole",url:"https://soundcloud.com/m-jayachandran-official/poomuthole"},{name:"Kadhale",url:"https://soundcloud.com/govind-vasantha/kadhale-kadhale"},{name:"Mazhaye",url:"https://soundcloud.com/shaan-rahman-official/mazhaye-mazhaye"}],
+                energetic: [{name:"Theeyame",url:"https://soundcloud.com/jakes-bejoy/theeyame"},{name:"Ranam Title",url:"https://soundcloud.com/jakes-bejoy/ranam-title-track"},{name:"Lucifer Anthem",url:"https://soundcloud.com/deepak-dev-official/lucifer-anthem"},{name:"Trance Song",url:"https://soundcloud.com/jackson-vijayan/trance-track"},{name:"Kaduva",url:"https://soundcloud.com/jakes-bejoy/kaduva-theme"}]
+            }
+        };
+
+        function toggleZen() {
+            const body = document.getElementById('mainBody');
+            const icon = document.getElementById('zenIcon');
+            const text = document.getElementById('zenText');
+            body.classList.toggle('zen-active');
+            if (body.classList.contains('zen-active')) {
+                icon.innerText = 'close'; text.innerText = 'Exit Zen Mode';
+            } else {
+                icon.innerText = 'filter_vintage'; text.innerText = 'Enter Zen Mode';
+            }
+        }
+
+        let scWidget = null;
+        let isPlaying = false;
+        let currentDurationMs = 0;
+        let widgetReady = false;
+        let pendingPlay = false;
+        let loadFallbackTimer = null;
+
+        function formatTime(ms) {
+            if (!ms || ms < 0) return "00:00";
+            const totalSec = Math.floor(ms / 1000);
+            const mins = Math.floor(totalSec / 60);
+            const secs = totalSec % 60;
+            return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+        }
+
+        function bindWidgetEvents() {
+            if (!scWidget) return;
+            scWidget.bind(SC.Widget.Events.READY, () => {
+                widgetReady = true;
+                scWidget.getCurrentSound((sound) => {
+                    if (!sound) return;
+                    document.getElementById("trackTitle").textContent = sound.title || "Unknown Track";
+                    const artist = sound.user && sound.user.username ? sound.user.username : "Unknown Artist";
+                    document.getElementById("trackArtist").textContent = artist;
+                });
+                scWidget.getDuration((duration) => {
+                    currentDurationMs = duration || 0;
+                    document.getElementById("totalTime").textContent = formatTime(duration);
+                });
+                if (pendingPlay) {
+                    scWidget.play();
+                    pendingPlay = false;
+                }
+            });
+            scWidget.bind(SC.Widget.Events.PLAY, () => {
+                isPlaying = true;
+                document.getElementById("playPauseIcon").textContent = "pause";
+                if (loadFallbackTimer) {
+                    clearTimeout(loadFallbackTimer);
+                    loadFallbackTimer = null;
+                }
+            });
+            scWidget.bind(SC.Widget.Events.PAUSE, () => {
+                isPlaying = false;
+                document.getElementById("playPauseIcon").textContent = "play_arrow";
+            });
+            scWidget.bind(SC.Widget.Events.FINISH, () => {
+                isPlaying = false;
+                document.getElementById("playPauseIcon").textContent = "play_arrow";
+                document.getElementById("progressFill").style.width = "0%";
+                document.getElementById("currentTime").textContent = "00:00";
+            });
+            scWidget.bind(SC.Widget.Events.PLAY_PROGRESS, (e) => {
+                const pct = e.relativePosition ? (e.relativePosition * 100) : 0;
+                document.getElementById("progressFill").style.width = `${Math.max(0, Math.min(100, pct))}%`;
+                document.getElementById("currentTime").textContent = formatTime(e.currentPosition || 0);
+                document.getElementById("totalTime").textContent = formatTime(currentDurationMs);
+            });
+        }
+
+        function buildSearchUrl(songName, lang) {
+            const langLabels = { eng: "English", tam: "Tamil", hin: "Hindi", mal: "Malayalam" };
+            const query = `${songName} ${langLabels[lang] || ""} lyrics`;
+            return `https://soundcloud.com/search/sounds?q=${encodeURIComponent(query)}`;
+        }
+
+        function updateUI() {
+            const mood = document.getElementById("moodSelect").value;
+            const lang = document.getElementById("langSelect").value;
+            const songs = songsData[lang][mood] || [];
+            const songSelect = document.getElementById("songSelect");
+            songSelect.innerHTML = "";
+            songs.forEach(song => {
+                const opt = document.createElement("option");
+                opt.value = song.url;
+                opt.textContent = song.name;
+                songSelect.appendChild(opt);
+            });
+            if (songs.length > 0) playSelected();
+        }
+
+        function playSelected() {
+            const songSelect = document.getElementById("songSelect");
+            const trackUrl = songSelect.value;
+            const selectedName = songSelect.options[songSelect.selectedIndex]?.textContent || "Loading...";
+            const lang = document.getElementById("langSelect").value;
+            const fallbackUrl = buildSearchUrl(selectedName, lang);
+            if (trackUrl) {
+                const frame = document.getElementById("musicFrame");
+                document.getElementById("trackTitle").textContent = selectedName;
+                document.getElementById("trackArtist").textContent = "Loading...";
+                document.getElementById("currentTime").textContent = "00:00";
+                document.getElementById("totalTime").textContent = "00:00";
+                document.getElementById("progressFill").style.width = "0%";
+                currentDurationMs = 0;
+                isPlaying = false;
+                widgetReady = false;
+                pendingPlay = true;
+
+                if (!scWidget) {
+                    const embedUrl =
+                        `https://w.soundcloud.com/player/?url=${encodeURIComponent(trackUrl)}` +
+                        `&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false`;
+                    frame.src = embedUrl;
+                    scWidget = SC.Widget(frame);
+                    bindWidgetEvents();
+                    return;
+                }
+
+                scWidget.load(trackUrl, {
+                    auto_play: true,
+                    hide_related: true,
+                    show_comments: false,
+                    show_user: false,
+                    show_reposts: false,
+                    show_teaser: false,
+                    visual: false
+                });
+
+                // If direct URL is unavailable, fallback to a search URL for the same song.
+                if (loadFallbackTimer) clearTimeout(loadFallbackTimer);
+                loadFallbackTimer = setTimeout(() => {
+                    if (isPlaying || !scWidget) return;
+                    scWidget.load(fallbackUrl, {
+                        auto_play: true,
+                        hide_related: true,
+                        show_comments: false,
+                        show_user: false,
+                        show_reposts: false,
+                        show_teaser: false,
+                        visual: false
+                    });
+                }, 5000);
+            }
+        }
+
+        document.getElementById("playPauseBtn").addEventListener("click", () => {
+            if (!scWidget) {
+                playSelected();
+                return;
+            }
+            if (!widgetReady) {
+                pendingPlay = true;
+                return;
+            }
+            if (isPlaying) scWidget.pause();
+            else scWidget.play();
+        });
+
+        document.getElementById("progressTrack").addEventListener("click", function(e) {
+            if (!scWidget || currentDurationMs === 0) return;
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const width = rect.width;
+            const seekPercentage = x / width;
+            const seekToMs = currentDurationMs * seekPercentage;
+            scWidget.seekTo(seekToMs);
+        });
+
+        window.onload = () => {
+            const langSelect = document.getElementById("langSelect");
+            const moodSelect = document.getElementById("moodSelect");
+            langSelect.value = "hin";
+            moodSelect.value = "romantic";
+            updateUI();
+
+            const songSelect = document.getElementById("songSelect");
+            const target = Array.from(songSelect.options).find(
+                (opt) => opt.textContent.trim().toLowerCase() === "raataan lambiyan"
+            );
+            if (target) {
+                songSelect.value = target.value;
+                playSelected();
+            }
+        };
+    </script>
+</body>
+</html>

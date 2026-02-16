@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>MANAS AI - Snake Game</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style type="text/tailwindcss">
+        :root {
+            --primary: #C3B1E1;
+            --background: #F6F6F8;
+            --dark-slate: #2D3748;
+        }
+        @layer components {
+            .glass-header {
+                background: rgba(246, 246, 248, 0.7);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+            }
+            .game-card {
+                @apply bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-6 md:p-8;
+            }
+            /* Enhanced Touch Controls */
+            .control-btn {
+                @apply w-16 h-16 rounded-2xl bg-white border-2 border-slate-100 flex items-center justify-center text-slate-400 transition-all shadow-sm;
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+            .control-btn:active {
+                @apply bg-primary text-white border-primary scale-95 shadow-inner;
+            }
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#C3B1E1",
+                        "background": "#F6F6F8",
+                        "dark-slate": "#2D3748",
+                    },
+                    fontFamily: { "sans": ["Inter", "sans-serif"] },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background font-sans text-dark-slate min-h-screen flex flex-col overflow-x-hidden select-none">
+
+    <header class="glass-header sticky top-0 z-50 flex items-center justify-between px-8 py-2 border-b border-slate-200/60 h-14">
+        <div class="flex items-center gap-3">
+            <div class="bg-primary p-1.5 rounded-lg text-white flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">spa</span>
+            </div>
+            <h1 class="text-lg font-extrabold tracking-tighter uppercase text-slate-800">MANAS AI</h1>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <a href="/chat" class="p-2 text-slate-400 hover:text-primary transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">chat</span>
+            </a>
+            <div class="h-6 w-px bg-slate-200"></div>
+            <a href="/account" class="size-8 rounded-full border-2 border-primary overflow-hidden hover:scale-105 transition-transform">
+                <img src="{{ profile_photo_url }}" class="w-full h-full object-cover" alt="Profile">
+            </a>
+            <button id="logoutBtn" class="p-2 text-slate-400 hover:text-slate-600 transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">logout</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col items-center justify-center py-6 px-4">
+        <div class="game-card max-w-md w-full flex flex-col items-center">
+            <div class="mb-4 text-center">
+                <h2 class="text-2xl font-black tracking-tight text-slate-800 uppercase">Snake Arcade</h2>
+                <div id="score" class="text-4xl font-black text-primary mt-1">0</div>
+            </div>
+
+            <div class="relative bg-slate-50 rounded-3xl p-2 border-4 border-white shadow-inner">
+                <canvas id="gameCanvas" width="300" height="300" class="rounded-2xl"></canvas>
+            </div>
+
+            <button id="startBtn" class="mt-6 px-10 py-3 bg-primary text-white font-black rounded-full shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest text-sm">
+                Start Game
+            </button>
+
+            <div class="mt-8 flex flex-col items-center gap-2">
+                <button class="control-btn" id="btnUp" title="Up">
+                    <span class="material-symbols-outlined !text-4xl">keyboard_arrow_up</span>
+                </button>
+                <div class="flex gap-2">
+                    <button class="control-btn" id="btnLeft" title="Left">
+                        <span class="material-symbols-outlined !text-4xl">keyboard_arrow_left</span>
+                    </button>
+                    <button class="control-btn" id="btnDown" title="Down">
+                        <span class="material-symbols-outlined !text-4xl">keyboard_arrow_down</span>
+                    </button>
+                    <button class="control-btn" id="btnRight" title="Right">
+                        <span class="material-symbols-outlined !text-4xl">keyboard_arrow_right</span>
+                    </button>
+                </div>
+            </div>
+            
+            <p class="mt-4 text-[10px] text-slate-400 font-bold uppercase tracking-widest">Touch buttons or use Arrow Keys</p>
+        </div>
+    </main>
+
+    <script>
+    (() => {
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score');
+        const startBtn = document.getElementById('startBtn');
+        
+        const gridSize = 20;
+        const tileSize = canvas.width / gridSize;
+        let snake = [{x: 10, y: 10}];
+        let direction = {x: 1, y: 0};
+        let nextDirection = {x: 1, y: 0}; // Prevents 180-degree self-collision
+        let food = {x: 15, y: 15};
+        let gameLoopId = null;
+        let score = 0;
+
+        function gameOver() {
+            clearInterval(gameLoopId);
+            gameLoopId = null;
+            alert('Game Over! Score: ' + score);
+        }
+
+        function placeFood() {
+            food.x = Math.floor(Math.random() * gridSize);
+            food.y = Math.floor(Math.random() * gridSize);
+            if (snake.some(s => s.x === food.x && s.y === food.y)) placeFood();
+        }
+
+        function drawBlock(x, y, color, isHead = false) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.roundRect(x * tileSize + 1, y * tileSize + 1, tileSize - 2, tileSize - 2, isHead ? 6 : 4);
+            ctx.fill();
+        }
+
+        function moveSnake() {
+            direction = nextDirection;
+            const head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
+
+            if (head.x < 0 || head.x >= gridSize || head.y < 0 || head.y >= gridSize || 
+                snake.some(s => s.x === head.x && s.y === head.y)) {
+                gameOver();
+                return false;
+            }
+
+            snake.unshift(head);
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                scoreDisplay.textContent = score;
+                placeFood();
+            } else {
+                snake.pop();
+            }
+            return true;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Food
+            drawBlock(food.x, food.y, '#FF6B6B');
+            // Snake
+            snake.forEach((s, i) => drawBlock(s.x, s.y, i === 0 ? '#C3B1E1' : '#DCD0F1', i === 0));
+        }
+
+        function gameLoop() {
+            if(moveSnake()) draw();
+        }
+
+        startBtn.onclick = () => {
+            if(gameLoopId) clearInterval(gameLoopId);
+            snake = [{x: 10, y: 10}];
+            direction = {x: 1, y: 0};
+            nextDirection = {x: 1, y: 0};
+            score = 0;
+            scoreDisplay.textContent = score;
+            placeFood();
+            gameLoopId = setInterval(gameLoop, 120);
+        };
+
+        // Input Logic (Touch + Keyboard)
+        const setDir = (x, y) => {
+            if ((x !== 0 && direction.x === -x) || (y !== 0 && direction.y === -y)) return;
+            nextDirection = {x, y};
+        };
+
+        // Touch Button Listeners
+        document.getElementById('btnUp').onclick = (e) => { e.preventDefault(); setDir(0, -1); };
+        document.getElementById('btnDown').onclick = (e) => { e.preventDefault(); setDir(0, 1); };
+        document.getElementById('btnLeft').onclick = (e) => { e.preventDefault(); setDir(-1, 0); };
+        document.getElementById('btnRight').onclick = (e) => { e.preventDefault(); setDir(1, 0); };
+
+        // Keyboard Listeners
+        document.addEventListener('keydown', e => {
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault(); // Prevent page scrolling
+                if (e.key === 'ArrowUp') setDir(0, -1);
+                else if (e.key === 'ArrowDown') setDir(0, 1);
+                else if (e.key === 'ArrowLeft') setDir(-1, 0);
+                else if (e.key === 'ArrowRight') setDir(1, 0);
+            }
+        });
+
+        document.getElementById('logoutBtn').onclick = () => { window.location.href = '/logout'; };
+        draw();
+    })();
+    </script>
+</body>
+</html>

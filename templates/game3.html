@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Focus Ball - MANAS AI</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style type="text/tailwindcss">
+        :root {
+            --primary: #C3B1E1;
+            --background: #F6F6F8;
+            --dark-slate: #2D3748;
+        }
+        @layer components {
+            .glass-header {
+                background: rgba(246, 246, 248, 0.7);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+            }
+            .game-ball {
+                @apply absolute w-16 h-16 rounded-full cursor-pointer flex items-center justify-center transition-transform duration-150 active:scale-90;
+                background: linear-gradient(135deg, #C3B1E1 0%, #a78bfa 100%);
+                box-shadow: 0 10px 15px -3px rgba(195, 177, 225, 0.4);
+            }
+            .game-card {
+                @apply bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-6 md:p-8;
+            }
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#C3B1E1",
+                        "background": "#F6F6F8",
+                        "dark-slate": "#2D3748",
+                    },
+                    fontFamily: { "sans": ["Inter", "sans-serif"] },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background font-sans text-dark-slate min-h-screen flex flex-col overflow-x-hidden select-none">
+
+    <header class="glass-header sticky top-0 z-50 flex items-center justify-between px-8 py-2 border-b border-slate-200/60 h-14">
+        <div class="flex items-center gap-3">
+            <div class="bg-primary p-1.5 rounded-lg text-white flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">spa</span>
+            </div>
+            <h1 class="text-lg font-extrabold tracking-tighter uppercase text-slate-800">MANAS AI</h1>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <a href="/chat" class="p-2 text-slate-400 hover:text-primary transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">chat</span>
+            </a>
+            <div class="h-6 w-px bg-slate-200"></div>
+            <a href="/account" class="size-8 rounded-full border-2 border-primary overflow-hidden hover:scale-105 transition-transform">
+                <img src="{{ profile_photo_url }}" class="w-full h-full object-cover" alt="Profile">
+            </a>
+            <button id="logoutBtn" class="p-2 text-slate-400 hover:text-slate-600 transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">logout</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col items-center justify-center py-6 px-4">
+        <div class="game-card max-w-2xl w-full flex flex-col items-center">
+            <div class="mb-6 text-center">
+                <h2 class="text-2xl font-black tracking-tight text-slate-800 uppercase">Focus Ball</h2>
+                <div class="bg-slate-50 mt-4 px-8 py-2 rounded-full border border-slate-100 shadow-sm">
+                    <p id="score" class="text-xl font-bold text-primary">Score: 0</p>
+                </div>
+            </div>
+
+            <div class="relative w-full aspect-video bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl overflow-hidden" id="gameArea">
+                <div class="game-ball" id="gameBall">
+                    <span class="material-symbols-outlined text-white text-3xl">ads_click</span>
+                </div>
+            </div>
+
+            <div class="text-center mt-6">
+                <p class="text-slate-400 text-xs font-black uppercase tracking-[0.2em]">Click the moving ball to sharpen your focus</p>
+                <button id="resetBtn" class="mt-4 px-6 py-2 text-slate-400 hover:text-primary transition-colors text-xs font-bold uppercase tracking-widest">
+                    Reset Score
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const gameArea = document.getElementById('gameArea');
+        const gameBall = document.getElementById('gameBall');
+        const scoreDisplay = document.getElementById('score');
+        let score = 0;
+        let moveInterval;
+
+        function randomPosition() {
+            const areaRect = gameArea.getBoundingClientRect();
+            const maxX = areaRect.width - gameBall.offsetWidth;
+            const maxY = areaRect.height - gameBall.offsetHeight;
+
+            // Padding of 10px to keep it away from extreme edges
+            const randomX = Math.max(10, Math.random() * (maxX - 10));
+            const randomY = Math.max(10, Math.random() * (maxY - 10));
+
+            gameBall.style.left = `${randomX}px`;
+            gameBall.style.top = `${randomY}px`;
+        }
+
+        function startMovement() {
+            clearInterval(moveInterval);
+            moveInterval = setInterval(randomPosition, 1800); // Moves every 1.8 seconds
+        }
+
+        gameBall.addEventListener('click', (e) => {
+            e.stopPropagation();
+            score++;
+            scoreDisplay.textContent = `Score: ${score}`;
+            randomPosition();
+            startMovement(); // Reset the interval timer on manual click
+        });
+
+        document.getElementById('resetBtn').onclick = () => {
+            score = 0;
+            scoreDisplay.textContent = `Score: 0`;
+            randomPosition();
+        };
+
+        document.getElementById('logoutBtn').onclick = () => { 
+            window.location.href = '/logout'; 
+        };
+
+        // Initialize
+        window.onload = () => {
+            randomPosition();
+            startMovement();
+        };
+
+        // Handle window resize to keep ball in bounds
+        window.addEventListener('resize', randomPosition);
+    </script>
+</body>
+</html>

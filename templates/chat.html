@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Manas AI Chat - Lavender Zen</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#C3B1E1",
+                        "primary-hover": "#b4a0d8",
+                        "background-light": "#F6F6F8",
+                        "sidebar-white": "#FFFFFF",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-header { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .user-gradient { background: linear-gradient(135deg, #C3B1E1 0%, #a78bfa 100%); }
+        .ai-gradient { background: linear-gradient(135deg, #fdfbff 0%, #f3f0ff 100%); }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background-light text-slate-900 font-display">
+<div class="flex h-screen w-full overflow-hidden">
+    <aside class="w-[280px] h-full bg-sidebar-white border-r border-slate-200 flex flex-col shrink-0">
+        <div class="p-6">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-10 h-10 rounded-full border-2 border-primary overflow-hidden shrink-0 shadow-sm">
+                    <img src="{{ profile_photo_url }}" class="w-full h-full object-cover">
+                </div>
+                <div>
+                    <h1 class="text-base font-extrabold tracking-tighter uppercase leading-none">MANAS AI</h1>
+                    <p class="text-[10px] text-slate-400 mt-1">Hello, {{ user_name or user }}</p>
+                </div>
+            </div>
+            <button id="newChatBtn" class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full py-3 px-4 transition-all font-semibold text-sm shadow-lg shadow-primary/30">
+                <span class="material-symbols-outlined text-[20px]">add</span>
+                <span>New Chat</span>
+            </button>
+        </div>
+
+        <div id="chatList" class="flex-1 overflow-y-auto px-3 space-y-1 custom-scrollbar">
+            <p class="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Recent Sessions</p>
+            {% for c in user_chats %}
+            <div class="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors chat-item" onclick="loadChatHistory('{{ c }}')">
+                <div class="flex items-center gap-3 overflow-hidden">
+                    <span class="material-symbols-outlined text-primary">chat_bubble</span>
+                    <div class="overflow-hidden">
+                        <p class="text-sm font-medium truncate chat-name-label">{{ c }}</p>
+                    </div>
+                </div>
+                <button class="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition-opacity" onclick="event.stopPropagation(); deleteChat('{{ c }}')">
+                    <span class="material-symbols-outlined text-sm">close</span>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="p-4 border-t border-slate-100">
+            <div class="bg-slate-50/80 p-2 rounded-2xl grid grid-cols-3 gap-1">
+                <a title="Games" href="/games" class="flex flex-col items-center justify-center p-3 rounded-xl text-slate-500 hover:bg-white hover:text-primary transition-all"><span class="material-symbols-outlined">sports_esports</span></a>
+                <a title="Quotes" href="/daily_inspiration" class="flex flex-col items-center justify-center p-3 rounded-xl text-slate-500 hover:bg-white hover:text-primary transition-all"><span class="material-symbols-outlined">format_quote</span></a>
+                <a title="Mood" href="/mood" class="flex flex-col items-center justify-center p-3 rounded-xl text-slate-500 hover:bg-white hover:text-primary transition-all"><span class="material-symbols-outlined">monitoring</span></a>
+                <a title="Music" href="/songs" class="flex flex-col items-center justify-center p-3 rounded-xl text-slate-500 hover:bg-white hover:text-primary transition-all"><span class="material-symbols-outlined">music_note</span></a>
+                <a title="Health" href="/health" class="flex flex-col items-center justify-center p-3 rounded-xl text-slate-500 hover:bg-white hover:text-primary transition-all"><span class="material-symbols-outlined">ecg_heart</span></a>
+                <a title="Settings" href="/account" class="flex flex-col items-center justify-center p-3 rounded-xl text-slate-500 hover:bg-white hover:text-primary transition-all"><span class="material-symbols-outlined">settings</span></a>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col relative bg-background-light">
+        <header class="glass-header sticky top-0 z-10 flex items-center justify-between px-8 py-2 border-b border-slate-200/60 h-14">
+            <div class="flex items-center gap-3">
+                <div class="bg-primary p-1.5 rounded-lg text-white flex items-center justify-center aspect-square h-9">
+                    <span class="material-symbols-outlined text-xl">spa</span>
+                </div>
+                <h2 class="text-lg font-extrabold tracking-tighter uppercase text-slate-800 font-display">MANAS AI</h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="sosBtn" class="bg-red-500 hover:bg-red-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-full transition-colors flex items-center gap-2 shadow-lg shadow-red-500/20 h-8">
+                    <span class="material-symbols-outlined text-sm">emergency_share</span> SOS
+                </button>
+                <div class="h-6 w-px bg-slate-200"></div>
+                <button id="logoutBtn" class="p-2 text-slate-400 hover:text-slate-600 flex items-center justify-center transition-colors">
+                    <span class="material-symbols-outlined text-xl">logout</span>
+                </button>
+            </div>
+        </header>
+
+        <div id="chatMessages" class="flex-1 overflow-y-auto px-6 py-8 custom-scrollbar">
+            </div>
+
+        <div class="p-6 pb-10">
+            <div class="max-w-3xl mx-auto">
+                <div class="relative bg-white rounded-full shadow-xl shadow-slate-200 border border-slate-200 p-2 flex items-center gap-2">
+                    <button id="voiceBtn" class="p-3 text-slate-400 hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined">mic</span>
+                    </button>
+                    <input id="chatInput" class="flex-1 bg-transparent border-none focus:ring-0 text-[16px] py-2 px-1 text-slate-800 placeholder:text-slate-400 font-medium" placeholder="Speak your mind..." type="text"/>
+                    <button id="sendBtn" class="size-12 rounded-full bg-primary hover:bg-primary-hover text-white flex items-center justify-center transition-all shadow-lg shadow-primary/40">
+                        <span class="material-symbols-outlined">send</span>
+                    </button>
+                </div>
+                <p class="text-center text-[10px] text-slate-400 mt-4 font-bold tracking-widest uppercase">
+                    Find your center with MANAS AI
+                </p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    let currentChat = null;
+    let typingInterval;
+    const userImg = "{{ profile_photo_url }}";
+    const botImg = "{{ url_for('static', filename='bot.png') }}";
+
+    function parseMarkdownToHTML(text) {
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        const lines = text.split('\n');
+        let inList = false, result = '';
+        lines.forEach(line => {
+            if (line.trim().startsWith('* ')) {
+                if (!inList) { result += '<ul class="list-disc ml-5 my-2">'; inList = true; }
+                result += `<li>${line.trim().substring(2)}</li>`;
+            } else {
+                if (inList) result += '</ul>'; inList = false;
+                result += line + '<br>';
+            }
+        });
+        if (inList) result += '</ul>';
+        return result;
+    }
+
+    function addMessage(sender, message, time = null) {
+        const chatEl = document.getElementById("chatMessages");
+        const wrapper = document.createElement("div");
+        const displayTime = time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        if (sender === "user") {
+            wrapper.className = "flex items-end gap-3 flex-row-reverse mb-8";
+            wrapper.innerHTML = `
+                <div class="size-8 rounded-full border border-white shadow-sm overflow-hidden shrink-0 mb-4">
+                    <img src="${userImg}" class="w-full h-full object-cover">
+                </div>
+                <div class="flex flex-col gap-1 items-end max-w-[70%]">
+                    <div class="user-gradient text-white p-4 rounded-2xl rounded-br-none shadow-lg shadow-primary/20 leading-relaxed text-[16px]">
+                        ${message}
+                    </div>
+                    <span class="text-[10px] text-slate-400 mr-1 font-bold">${displayTime}</span>
+                </div>`;
+        } else {
+            const formatted = parseMarkdownToHTML(message);
+            wrapper.className = "flex items-end gap-3 mb-8";
+            wrapper.innerHTML = `
+                <div class="size-8 rounded-full bg-white border border-slate-100 shadow-sm overflow-hidden shrink-0 mb-4">
+                    <img src="${botImg}" class="w-full h-full object-cover">
+                </div>
+                <div class="flex flex-col gap-1 max-w-[70%]">
+                    <div class="ai-gradient text-slate-700 p-4 rounded-2xl rounded-bl-none shadow-sm border border-primary/10 leading-relaxed text-[16px]">
+                        ${formatted}
+                    </div>
+                    <span class="text-[10px] text-slate-400 ml-1 font-bold">${displayTime}</span>
+                </div>`;
+        }
+        chatEl.appendChild(wrapper);
+        chatEl.scrollTop = chatEl.scrollHeight;
+    }
+
+    function showTypingAnimation() {
+        const chatEl = document.getElementById("chatMessages");
+        const wrapper = document.createElement("div");
+        wrapper.id = "typingAnimation";
+        wrapper.className = "flex items-end gap-3 mb-8";
+        wrapper.innerHTML = `
+            <div class="size-8 rounded-full bg-white border border-slate-100 shadow-sm overflow-hidden shrink-0 mb-4">
+                <img src="${botImg}" class="w-full h-full object-cover">
+            </div>
+            <div class="flex flex-col gap-1">
+                <div class="ai-gradient text-slate-700 p-4 rounded-2xl rounded-bl-none shadow-sm border border-primary/10">
+                    <span id="typingDots">.</span>
+                </div>
+            </div>`;
+        chatEl.appendChild(wrapper);
+        chatEl.scrollTop = chatEl.scrollHeight;
+        let dots = "";
+        typingInterval = setInterval(() => {
+            dots = dots.length >= 3 ? "." : dots + ".";
+            document.getElementById("typingDots").textContent = dots;
+        }, 200);
+    }
+
+    function removeTypingAnimation() {
+        clearInterval(typingInterval);
+        const typingEl = document.getElementById("typingAnimation");
+        if (typingEl) typingEl.remove();
+    }
+
+    // FEATURE: LOAD CHAT HISTORY
+    async function loadChatHistory(chatName) {
+        currentChat = chatName;
+        const chatEl = document.getElementById("chatMessages");
+        chatEl.innerHTML = `<div class="text-center py-4 text-[10px] font-bold text-slate-300 uppercase tracking-widest">Loading Session: ${chatName}</div>`;
+        
+        try {
+            const res = await fetch('/load_chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_name: chatName })
+            });
+            const data = await res.json();
+            chatEl.innerHTML = ''; // Clear loader
+            
+            if (data.history && data.history.length > 0) {
+                data.history.forEach(item => {
+                    // Extract time from timestamp if available
+                    let time = null;
+                    if(item.timestamp) {
+                        const dateObj = new Date(item.timestamp);
+                        time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    }
+                    addMessage(item.sender, item.message, time);
+                });
+            } else {
+                addMessage('bot', 'No messages found in this session.');
+            }
+        } catch (e) {
+            console.error("Error loading history:", e);
+        }
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const msg = input.value.trim();
+        if (!msg) return;
+        addMessage('user', msg);
+        input.value = '';
+        showTypingAnimation();
+        
+        try {
+            const res = await fetch('/chat_message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_name: currentChat, message: msg })
+            });
+            const data = await res.json();
+            removeTypingAnimation();
+
+            // Dangerous Word Check (SOS notification from backend)
+            if (data.sos_triggered) {
+                alert("Safety alert: Based on your message, we've notified our support team. You're not alone.");
+            }
+
+            // Update chat name if it was renamed by the backend
+            if (data.chat_name && data.chat_name !== currentChat) {
+                currentChat = data.chat_name;
+                // Optional: You might want to refresh the sidebar list here
+            }
+
+            addMessage('bot', data.message || 'I am listening, please continue.');
+        } catch (e) { 
+            removeTypingAnimation();
+            addMessage('bot', 'Sorry, I am having trouble connecting right now.');
+        }
+    }
+
+    // FEATURE: DELETE CHAT
+    async function deleteChat(name) {
+        if (!confirm(`Delete session "${name}"?`)) return;
+        try {
+            const res = await fetch('/delete_chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_name: name })
+            });
+            const data = await res.json();
+            if (data.success) location.reload();
+        } catch (e) { console.error(e); }
+    }
+
+    document.getElementById('newChatBtn').onclick = async () => {
+        const res = await fetch('/new_chat', { method: 'POST' });
+        const data = await res.json();
+        if (data.chat_name) { location.reload(); }
+    };
+
+    document.getElementById('sendBtn').onclick = sendMessage;
+    document.getElementById('chatInput').onkeydown = e => { if(e.key==='Enter') sendMessage(); };
+    document.getElementById('logoutBtn').onclick = () => window.location.href='/logout';
+    
+    // FEATURE: SOS BUTTON
+    document.getElementById('sosBtn').onclick = async () => {
+        if (confirm('Send an immediate SOS alert to the Manas Emergency Team?')) {
+            try {
+                const res = await fetch('/send_emergency_email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ triggering_text: 'Manual SOS triggered from chat UI.' })
+                });
+                const data = await res.json();
+                if (!res.ok || data.error) {
+                    alert(data.error || 'Failed to send SOS. Please call local emergency services.');
+                    return;
+                }
+                alert('SOS Alert Sent. Help is being notified.');
+            } catch (e) { alert('Failed to send SOS. Please call local emergency services.'); }
+        }
+    };
+
+    window.onload = () => {
+        // If no chats exist, show greeting
+        if ({{ (user_chats|length == 0)|tojson }}) {
+            addMessage("bot", "Hi! I'm Manas. I'm here to listen and help you find your center. How are you feeling right now?");
+        } else {
+            // Load the most recent chat automatically
+            const latestChat = "{{ user_chats[0] if user_chats else '' }}";
+            if (latestChat) loadChatHistory(latestChat);
+        }
+    };
+</script>
+</body>
+</html>

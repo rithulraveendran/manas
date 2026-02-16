@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Memory Game - MANAS AI</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style type="text/tailwindcss">
+        :root {
+            --primary: #C3B1E1;
+            --background: #F6F6F8;
+            --dark-slate: #2D3748;
+        }
+        @layer components {
+            .glass-header {
+                background: rgba(246, 246, 248, 0.7);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+            }
+            .game-card {
+                @apply bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-6 md:p-8;
+            }
+            .memory-tile {
+                @apply aspect-square bg-primary rounded-2xl cursor-pointer transition-all duration-300 flex items-center justify-center text-white text-3xl shadow-sm;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .memory-tile.flipped {
+                @apply bg-white border-2 border-primary text-primary rotate-[360deg] shadow-md;
+            }
+            .memory-tile.matched {
+                @apply bg-slate-100 border-none opacity-40 scale-90 cursor-default;
+            }
+            .stat-box {
+                @apply flex-1 bg-slate-50 rounded-2xl p-4 border border-slate-100 text-center;
+            }
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#C3B1E1",
+                        "background": "#F6F6F8",
+                        "dark-slate": "#2D3748",
+                    },
+                    fontFamily: { "sans": ["Inter", "sans-serif"] },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background font-sans text-dark-slate min-h-screen flex flex-col overflow-x-hidden select-none">
+
+    <header class="glass-header sticky top-0 z-50 flex items-center justify-between px-8 py-2 border-b border-slate-200/60 h-14">
+        <div class="flex items-center gap-3">
+            <div class="bg-primary p-1.5 rounded-lg text-white flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">spa</span>
+            </div>
+            <h1 class="text-lg font-extrabold tracking-tighter uppercase text-slate-800">MANAS AI</h1>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <a href="/chat" class="p-2 text-slate-400 hover:text-primary transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">chat</span>
+            </a>
+            <div class="h-6 w-px bg-slate-200"></div>
+            <a href="/account" class="size-8 rounded-full border-2 border-primary overflow-hidden hover:scale-105 transition-transform">
+                <img src="{{ profile_photo_url }}" class="w-full h-full object-cover" alt="Profile">
+            </a>
+            <button id="logoutBtn" class="p-2 text-slate-400 hover:text-slate-600 transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">logout</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col items-center justify-center py-6 px-4">
+        <div class="game-card max-w-lg w-full flex flex-col items-center">
+            <div class="mb-6 text-center">
+                <h2 class="text-2xl font-black tracking-tight text-slate-800 uppercase">Memory Match</h2>
+                <div class="flex gap-3 mt-4 w-64 md:w-80">
+                    <div class="stat-box">
+                        <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Moves</p>
+                        <p id="moves" class="text-xl font-bold text-slate-700">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Time</p>
+                        <p id="time" class="text-xl font-bold text-slate-700">00:00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="grid" class="grid gap-3 w-full aspect-square max-w-[320px] md:max-w-[400px]">
+                </div>
+
+            <div class="mt-8 flex gap-4">
+                <button id="restartBtn" class="px-8 py-3 bg-slate-100 text-slate-600 font-black rounded-full hover:bg-slate-200 transition-all uppercase tracking-widest text-xs">
+                    Restart
+                </button>
+                <button id="nextLevelBtn" class="hidden px-8 py-3 bg-primary text-white font-black rounded-full shadow-lg shadow-primary/30 hover:scale-105 transition-all uppercase tracking-widest text-xs">
+                    Next Level
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    const allEmojis = ['🌸', '🌙', '🦋', '🍬', '🌈', '🍦', '🎨', '✨', '🍀', '🍎', '🦊', '🎈'];
+    let round = 1, moves = 0, timer = null, timeStart = null;
+    let first = null, second = null, lock = false;
+
+    function startGame(r) {
+        round = r;
+        moves = 0;
+        timeStart = Date.now();
+        document.getElementById('moves').textContent = moves;
+        document.getElementById('nextLevelBtn').classList.add('hidden');
+        
+        let gridSize = round === 1 ? 2 : (round === 2 ? 3 : 4);
+        let pairCount = Math.floor((gridSize * gridSize) / 2);
+        
+        let selected = allEmojis.slice(0, pairCount);
+        let cards = [...selected, ...selected].sort(() => Math.random() - 0.5);
+
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        grid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+
+        clearInterval(timer);
+        timer = setInterval(updateTime, 1000);
+
+        cards.forEach(emoji => {
+            const tile = document.createElement('div');
+            tile.className = 'memory-tile';
+            tile.dataset.face = emoji;
+            
+            tile.onclick = () => {
+                if (lock || tile.classList.contains('flipped') || tile.classList.contains('matched')) return;
+                
+                tile.classList.add('flipped');
+                tile.textContent = emoji;
+                moves++;
+                document.getElementById('moves').textContent = moves;
+
+                if (!first) {
+                    first = tile;
+                } else {
+                    second = tile;
+                    lock = true;
+                    if (first.dataset.face === second.dataset.face) {
+                        first.classList.add('matched');
+                        second.classList.add('matched');
+                        checkWin();
+                        resetTurn();
+                    } else {
+                        setTimeout(() => {
+                            first.classList.remove('flipped');
+                            second.classList.remove('flipped');
+                            first.textContent = '';
+                            second.textContent = '';
+                            resetTurn();
+                        }, 800);
+                    }
+                }
+            };
+            grid.appendChild(tile);
+        });
+    }
+
+    function resetTurn() {
+        first = null; second = null; lock = false;
+    }
+
+    function checkWin() {
+        const matched = document.querySelectorAll('.matched');
+        const total = document.querySelectorAll('.memory-tile');
+        if (matched.length === total.length) {
+            clearInterval(timer);
+            document.getElementById('nextLevelBtn').classList.remove('hidden');
+        }
+    }
+
+    function updateTime() {
+        let elapsed = Math.floor((Date.now() - timeStart) / 1000);
+        let mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
+        let ss = String(elapsed % 60).padStart(2, '0');
+        document.getElementById('time').textContent = `${mm}:${ss}`;
+    }
+
+    document.getElementById('restartBtn').onclick = () => startGame(1);
+    document.getElementById('nextLevelBtn').onclick = () => startGame(round + 1);
+    document.getElementById('logoutBtn').onclick = () => { window.location.href = '/logout'; };
+
+    window.onload = () => startGame(1);
+    </script>
+</body>
+</html>

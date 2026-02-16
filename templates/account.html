@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Account Settings - MANAS AI</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style type="text/tailwindcss">
+        :root {
+            --primary: #C3B1E1;
+            --background: #F6F6F8;
+            --dark-slate: #2D3748;
+        }
+        @layer components {
+            .glass-header {
+                background: rgba(246, 246, 248, 0.7);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+            }
+            .settings-card {
+                @apply bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 p-8 mb-8;
+            }
+            .input-field {
+                @apply w-full rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium focus:border-primary focus:ring-primary transition-all;
+            }
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#C3B1E1",
+                        "background": "#F6F6F8",
+                        "dark-slate": "#2D3748",
+                    },
+                    fontFamily: { "sans": ["Inter", "sans-serif"] },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background font-sans text-dark-slate min-h-screen flex flex-col overflow-x-hidden">
+
+    <header class="glass-header sticky top-0 z-50 flex items-center justify-between px-8 py-2 border-b border-slate-200/60 h-14">
+        <div class="flex items-center gap-3">
+            <div class="bg-primary p-1.5 rounded-lg text-white flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">spa</span>
+            </div>
+            <h1 class="text-lg font-extrabold tracking-tighter uppercase text-slate-800">MANAS AI</h1>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <a href="/chat" class="p-2 text-slate-400 hover:text-primary transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">chat</span>
+            </a>
+            <div class="h-6 w-px bg-slate-200"></div>
+            <div class="size-8 rounded-full border-2 border-primary overflow-hidden">
+                <img src="{{ profile_photo_url }}" class="w-full h-full object-cover" alt="User DP">
+            </div>
+            <button onclick="window.location.href='/logout'" class="p-2 text-slate-400 hover:text-slate-600 transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">logout</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-4xl w-full mx-auto py-12 px-6">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="mb-6 space-y-2">
+            {% for m in messages %}
+            <div class="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-xs font-semibold text-amber-800">{{ m }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        <div class="flex items-center justify-between mb-10">
+            <h2 class="text-3xl font-black tracking-tight text-slate-800 uppercase">Settings</h2>
+            
+        </div>
+
+        <div class="settings-card flex flex-col md:flex-row items-center gap-8">
+            <div class="relative group">
+                <div class="size-32 rounded-full border-4 border-slate-100 overflow-hidden shadow-inner">
+                    <img id="previewImg" src="{{ profile_photo_url }}" class="w-full h-full object-cover" alt="Current DP">
+                </div>
+                <div class="absolute inset-0 bg-black/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span class="material-symbols-outlined text-white">photo_camera</span>
+                </div>
+            </div>
+            <div class="flex-1 text-center md:text-left">
+                <h3 class="text-lg font-bold text-slate-800 mb-1">Your Profile Photo</h3>
+                <p class="text-xs text-slate-400 font-medium mb-4">Upload a new square image (JPG or PNG)</p>
+                <form action="{{ url_for('upload_dp') }}" method="POST" enctype="multipart/form-data" class="flex flex-col md:flex-row gap-3">
+                    <input type="file" name="dp" id="dpInput" accept="image/*" class="hidden" onchange="this.form.submit()">
+                    <button type="button" onclick="document.getElementById('dpInput').click()" class="px-6 py-2.5 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-full hover:scale-105 transition-transform shadow-lg shadow-primary/20">
+                        Upload New Image
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <h3 class="text-sm font-black text-slate-400 uppercase tracking-[0.2em] mb-8">Personal Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2 ml-1">Full Name</label>
+                    <input type="text" readonly class="input-field opacity-60" value="{{ user.name }}">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2 ml-1">Email Address</label>
+                    <input type="email" readonly class="input-field opacity-60" value="{{ user.email }}">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2 ml-1">Current Age</label>
+                    <input type="number" readonly class="input-field opacity-60" value="{{ user.age }}">
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <h3 class="text-sm font-black text-slate-400 uppercase tracking-[0.2em] mb-8">Security</h3>
+            <form method="POST" action="{{ url_for('account') }}" class="space-y-6">
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2 ml-1">Current Password</label>
+                    <input name="current_password" type="password" required class="input-field" placeholder="••••••••">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2 ml-1">New Password</label>
+                        <input name="new_password" type="password" required class="input-field" placeholder="••••••••">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2 ml-1">Confirm New Password</label>
+                        <input name="confirm_password" type="password" required class="input-field" placeholder="••••••••">
+                    </div>
+                </div>
+                <div class="pt-4 flex justify-end">
+                    <button type="submit" class="px-8 py-3 bg-slate-800 text-white text-xs font-black uppercase tracking-widest rounded-full hover:bg-slate-700 transition-all">
+                        Update Password
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="p-8 rounded-[2.5rem] border-2 border-dashed border-red-100 bg-red-50/30 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="text-center md:text-left">
+                <h3 class="text-red-600 font-black uppercase tracking-widest text-sm mb-1">Danger Zone</h3>
+                <p class="text-xs text-red-400 font-medium">Permanently delete your account and all wellness data.</p>
+            </div>
+            <form method="POST" action="{{ url_for('delete_account') }}" onsubmit="return confirm('Wait! This will permanently delete your wellness history. Proceed?');">
+                <button type="submit" class="px-6 py-3 border-2 border-red-200 text-red-500 text-xs font-black uppercase tracking-widest rounded-full hover:bg-red-500 hover:text-white transition-all">
+                    Delete Account
+                </button>
+            </form>
+        </div>
+    </main>
+
+</body>
+</html>
