@@ -20,9 +20,9 @@ app.secret_key = "supersecretkey"
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 app.config["PREFERRED_URL_SCHEME"] = "https"
 
-GROQ_API_KEY = "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"
-SENDER_EMAIL = "flightsofwhisper@gmail.com"
-APP_PASSWORD = "shuy czpw xnsk rrre"
+GROQ_API_KEY = "API KEY GOES HERE"
+SENDER_EMAIL = "MAIL ID"
+APP_PASSWORD = "PASSWORD"
 
 FIREBASE_KEY_PATHS = [
     os.path.join(os.path.dirname(__file__), "static", "firebase_key.json"),
